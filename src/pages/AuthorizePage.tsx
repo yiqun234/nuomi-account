@@ -48,11 +48,11 @@ const AuthorizePage = () => {
             api_key: apiKey,
           }),
         })
-        console.log(2222222)
         setStatus('success')
-      } catch (err: any) {
-        console.error('Authorization process failed:', err)
-        setError(err.message || t('authorize.error_unknown'))
+      } catch (err) {
+        const error = err as Error
+        console.error('Authorization process failed:', error)
+        setError(error.message || t('authorize.error_unknown'))
         console.log(1111111)
         setStatus('error')
       } finally {

@@ -34,6 +34,11 @@ export const signOut = (): Promise<void> => {
 }
 
 // Helper to check if an error is an AuthError
-export const isAuthError = (error: any): error is AuthError => {
-  return error.code !== undefined && error.message !== undefined
+export const isAuthError = (error: unknown): error is AuthError => {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    'message' in error
+  )
 } 

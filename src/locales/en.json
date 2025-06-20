@@ -1,0 +1,78 @@
+{
+  "or": "Or",
+  "login": {
+    "title": "Login to Your Account",
+    "email_placeholder": "Enter your email",
+    "password_placeholder": "Enter your password",
+    "login_button": "Login",
+    "register_button": "Register",
+    "google_signin_button": "Sign in with Google",
+    "success": {
+      "login": "Login successful!",
+      "google": "Google sign-in successful!"
+    },
+    "error": {
+      "invalid_credentials": "Invalid email or password.",
+      "email_in_use": "This email is already in use.",
+      "weak_password": "Password is too weak. Use at least 6 characters.",
+      "generic": "An unknown error occurred. Please try again."
+    },
+    "validation": {
+      "email_required": "Please input your email!",
+      "email_invalid": "Please enter a valid email!",
+      "password_required": "Please input your password!",
+      "password_min_length": "Password must be at least 6 characters!"
+    }
+  },
+  "register": {
+    "title": "Create a New Account",
+    "confirm_password_placeholder": "Confirm your password",
+    "already_have_account": "Already have an account?",
+    "success": {
+      "register": "Registration successful! Redirecting..."
+    },
+    "error": {
+      "email_in_use": "This email is already in use.",
+      "weak_password": "Password is too weak. Use at least 6 characters.",
+      "generic": "An unknown error occurred. Please try again."
+    },
+    "validation": {
+      "confirm_required": "Please confirm your password!",
+      "password_mismatch": "The two passwords that you entered do not match!"
+    }
+  },
+  "dashboard": {
+    "title": "Configuration Dashboard",
+    "logout_button": "Logout",
+    "save_button": "Save Configuration",
+    "messages": {
+      "save_success": "Configuration saved successfully!",
+      "save_error": "Failed to save configuration.",
+      "load_error": "Failed to load configuration."
+    },
+    "sections": {
+      "linkedin": "LinkedIn Credentials",
+      "job_search": "Job Search Target",
+      "blacklist": "Blacklists",
+      "ai": "AI Settings",
+      "paths": "File Paths",
+      "eeo": "EEO Information"
+    },
+    "labels": {
+      "linkedin_email": "Email",
+      "linkedin_pass": "Password",
+      "job_title": "Job Title",
+      "location": "Location",
+      "blacklist_companies": "Blacklisted Companies",
+      "blacklist_titles": "Blacklisted Titles",
+      "ai_enabled": "Enable AI",
+      "ai_api_key": "API Key",
+      "resume_path": "Resume Path",
+      "cover_letter_path": "Cover Letter Path",
+      "gender": "Gender",
+      "race": "Race",
+      "veteran": "Veteran Status",
+      "disability": "Disability Status"
+    }
+  }
+} 

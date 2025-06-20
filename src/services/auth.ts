@@ -7,8 +7,7 @@ import {
   type AuthError,
   type UserCredential,
 } from 'firebase/auth'
-import { goOffline } from 'firebase/database'
-import { auth, realtimeDb } from './firebase'
+import { auth } from './firebase'
 import type { LoginCredentials } from '../types/auth'
 
 export const signInWithGoogle = (): Promise<UserCredential> => {
@@ -31,9 +30,6 @@ export const signIn = ({
 }
 
 export const signOut = (): Promise<void> => {
-  // Explicitly disconnect from the Realtime Database before signing out
-  // to prevent lingering connections.
-  goOffline(realtimeDb)
   return firebaseSignOut(auth)
 }
 

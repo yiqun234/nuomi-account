@@ -1,4 +1,4 @@
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState, Suspense, lazy } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ConfigProvider, theme, App as AntdApp, Spin } from 'antd'
 import { useTranslation } from 'react-i18next'
@@ -6,13 +6,13 @@ import zhCN from 'antd/locale/zh_CN'
 import enUS from 'antd/locale/en_US'
 import useAuthStore from './store/auth'
 import ProtectedRoute from './components/ProtectedRoute'
-import {
-  LoginPage,
-  RegisterPage,
-  DashboardPage,
-  AuthorizePage,
-} from './pages'
 import LoginRedirector from './components/LoginRedirector'
+
+// Lazy load page components for code-splitting
+const LoginPage = lazy(() => import('./pages/LoginPage'))
+const RegisterPage = lazy(() => import('./pages/RegisterPage'))
+const DashboardPage = lazy(() => import('./pages/DashboardPage'))
+const AuthorizePage = lazy(() => import('./pages/AuthorizePage'))
 
 const App = () => {
   const { i18n } = useTranslation()
@@ -52,7 +52,20 @@ const App = () => {
       locale={antdLocale}
     >
       <AntdApp>
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense
+          fallback={
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100vh',
+              }}
+            >
+              <Spin size="large" />
+            </div>
+          }
+        >
           <Routes>
             <Route
               path="/"

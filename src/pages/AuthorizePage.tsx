@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Card, Typography, Spin, Flex, Result } from 'antd'
 import { useTranslation } from 'react-i18next'
 import useAuthStore from '../store/auth'
-import { getOrCreateApiKey } from '../services/database'
+import { getOrCreateApiKey } from '../services/apiKey'
 import type { User } from 'firebase/auth'
 import AuthLayout from '../components/AuthLayout'
 

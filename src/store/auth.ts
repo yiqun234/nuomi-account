@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import { onAuthStateChanged, type User } from 'firebase/auth'
-import { auth } from '../services/firebase'
-import { getOrCreateApiKey } from '../services/database'
+import { goOffline, goOnline } from 'firebase/database'
+import { auth, realtimeDb } from '../services/firebase'
+import { getOrCreateApiKey } from '../services/apiKey'
 
 interface AuthState {
   user: User | null
@@ -14,11 +15,17 @@ const useAuthStore = create<AuthState>((set) => {
   onAuthStateChanged(auth, (user) => {
     if (user) {
       // User is signed in.
+      // 1. Reconnect to the database.
+      goOnline(realtimeDb)
+      // 2. Set user state.
       set({ user, isLoading: false })
-      // Ensure an API key exists for the user.
+      // 3. Ensure an API key exists.
       getOrCreateApiKey(user.uid).catch(console.error)
     } else {
       // User is signed out.
+      // 1. Disconnect from the database.
+      goOffline(realtimeDb)
+      // 2. Set user state to null.
       set({ user: null, isLoading: false })
     }
   })

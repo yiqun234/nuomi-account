@@ -1,25 +1,29 @@
-import { Button, Dropdown } from 'antd'
-import { GlobalOutlined } from '@ant-design/icons'
-import { useTranslation } from 'react-i18next'
-import type { MenuProps } from 'antd'
+import React from 'react';
+import { Dropdown, Button, type MenuProps } from 'antd';
+import { GlobalOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
-const LanguageSwitcher = () => {
-  const { i18n } = useTranslation()
+const LanguageSwitcher: React.FC = () => {
+  const { i18n } = useTranslation();
 
-  const items: MenuProps['items'] = [
-    { key: 'en', label: 'English' },
-    { key: 'zh', label: '中文' },
-  ]
+  const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
+    i18n.changeLanguage(key);
+  };
 
-  const handleMenuClick: MenuProps['onClick'] = (e) => {
-    i18n.changeLanguage(e.key)
-  }
+  const menuProps = {
+    items: [
+      { key: 'en', label: 'English' },
+      { key: 'zh', label: '简体中文' },
+    ],
+    onClick: handleMenuClick,
+    selectedKeys: [i18n.language],
+  };
 
   return (
-    <Dropdown menu={{ items, onClick: handleMenuClick }} placement="bottomRight">
+    <Dropdown menu={menuProps} placement="bottomRight" trigger={['click']}>
       <Button type="text" icon={<GlobalOutlined />} />
     </Dropdown>
-  )
-}
+  );
+};
 
-export default LanguageSwitcher 
+export default LanguageSwitcher; 

@@ -1,0 +1,508 @@
+import type { ConfigSchema } from '../types/index';
+
+export const configSchema: ConfigSchema = {
+  groups: [
+    {
+      key: 'global',
+      group_name_en: 'Basic Settings',
+      group_name_zh: '基本设置',
+      fields: [
+        {
+          key: 'email',
+          type: 'string',
+          ui_hint: 'text_input',
+          en_label: 'LinkedIn Email:',
+          zh_label: '领英邮箱:',
+        },
+        {
+          key: 'password',
+          type: 'string',
+          ui_hint: 'password_input',
+          en_label: 'LinkedIn Password:',
+          zh_label: '领英密码:',
+        },
+        {
+          key: 'uploads.resume',
+          type: 'string',
+          ui_hint: 'text_input_browse',
+          en_label: 'Resume File Path:',
+          zh_label: '简历文件路径:',
+          description_en: 'Only PDF format is supported (Max 2MB)',
+          description_zh: '仅支持PDF格式(最大2MB)',
+          buttons: [
+            { key: 'browse', en_label: 'Browse', zh_label: '浏览' },
+            { key: 'extract', en_label: 'AI Extract Resume Text', zh_label: 'AI提取简历文本' }
+          ]
+        },
+        {
+          key: 'uploads.coverLetter',
+          type: 'string',
+          ui_hint: 'text_input_browse',
+          en_label: 'Cover Letter File Path:',
+          zh_label: '求职信文件路径:',
+          description_en: 'Only PDF format is supported (Max 512KB)',
+          description_zh: '仅支持PDF格式(最大512KB)',
+          buttons: [
+            { key: 'browse', en_label: 'Browse', zh_label: '浏览' }
+          ]
+        },
+        {
+          key: 'uploads.photo',
+          type: 'string',
+          ui_hint: 'text_input_browse',
+          en_label: 'Photo File Path:',
+          zh_label: '照片文件路径:',
+          description_en: 'Supports PNG, JPG, JPEG (Max 1MB)',
+          description_zh: '支持PNG, JPG, JPEG (最大1MB)',
+          buttons: [
+            { key: 'browse', en_label: 'Browse', zh_label: '浏览' }
+          ]
+        },
+        {
+          key: 'disableAntiLock',
+          type: 'boolean',
+          ui_hint: 'checkbox',
+          en_label: 'Disable System Anti-lock/Sleep',
+          zh_label: '禁用系统防锁定/休眠',
+        },
+      ],
+    },
+    {
+      key: 'job_filters',
+      group_name_en: 'Position and Location',
+      group_name_zh: '职位和位置',
+      fields: [
+        {
+            key: 'positionsWithCount',
+            type: 'array',
+            ui_hint: 'card_list',
+            en_label: 'Job Posting Configuration (with quantity limit)',
+            zh_label: '职位投递配置 (带数量限制)',
+            item_schema: {
+              type: 'object',
+              properties: [
+                {
+                  key: 'name',
+                  type: 'string',
+                  ui_hint: 'text_input',
+                  en_label: 'Position Name',
+                  zh_label: '职位名称',
+                },
+                {
+                  key: 'count',
+                  type: 'number',
+                  ui_hint: 'number_input',
+                  en_label: 'Target Count',
+                  zh_label: '目标数量',
+                },
+              ],
+            },
+        },
+        {
+            key: 'locations',
+            type: 'array',
+            ui_hint: 'textarea',
+            en_label: 'Target Locations (one per line)',
+            zh_label: '目标地点 (每行一个):',
+        },
+        {
+            key: 'distance',
+            type: 'number',
+            ui_hint: 'select',
+            en_label: 'Search Radius (km):',
+            zh_label: '搜索半径(公里):',
+            options: [
+                { key: '0', value: 0, en_label: '0 km', zh_label: '0 公里' },
+                { key: '5', value: 5, en_label: '5 km', zh_label: '5 公里' },
+                { key: '10', value: 10, en_label: '10 km', zh_label: '10 公里' },
+                { key: '25', value: 25, en_label: '25 km', zh_label: '25 公里' },
+                { key: '50', value: 50, en_label: '50 km', zh_label: '50 公里' },
+                { key: '100', value: 100, en_label: '100 km', zh_label: '100 公里' },
+            ]
+        },
+        {
+            key: 'remote',
+            type: 'boolean',
+            ui_hint: 'checkbox',
+            en_label: 'Search Remote Jobs Only',
+            zh_label: '只搜索远程工作',
+        },
+        {
+            key: 'lessApplicantsEnabled',
+            type: 'boolean',
+            ui_hint: 'checkbox_with_inline_input',
+            en_label: 'Filter jobs with less than',
+            zh_label: '筛选少于',
+            inline_input: {
+                key: 'lessApplicantsCount',
+                en_unit: 'applicants',
+                zh_unit: '名申请者的职位',
+            }
+        },
+        {
+            key: 'newestPostingsFirst',
+            type: 'boolean',
+            ui_hint: 'checkbox',
+            en_label: 'Sort by most recent',
+            zh_label: '按最新发布日期排序',
+        },
+        {
+            key: 'residentStatus',
+            type: 'boolean',
+            ui_hint: 'checkbox',
+            en_label: 'Resident in job country',
+            zh_label: '居住在工作所在国家/地区',
+        },
+      ],
+    },
+    {
+      key: 'preference_settings',
+      group_name_en: 'Preference Settings',
+      group_name_zh: '偏好设置',
+      fields: [
+        {
+          key: 'experienceLevel',
+          type: 'object',
+          ui_hint: 'checkbox_group',
+          en_label: 'Experience Level',
+          zh_label: '经验等级',
+          options: [
+            { key: 'internship', en_label: 'Internship', zh_label: '实习' },
+            { key: 'entry', en_label: 'Entry level', zh_label: '入门级' },
+            { key: 'associate', en_label: 'Associate', zh_label: '助理' },
+            { key: 'mid-senior_level', en_label: 'Mid-Senior level', zh_label: '中高级' },
+            { key: 'director', en_label: 'Director', zh_label: '总监' },
+            { key: 'executive', en_label: 'Executive', zh_label: '高管' },
+          ],
+        },
+        {
+          key: 'jobTypes',
+          type: 'object',
+          ui_hint: 'checkbox_group',
+          en_label: 'Job Type',
+          zh_label: '工作类型',
+          options: [
+            { key: 'full-time', en_label: 'Full-time', zh_label: '全职' },
+            { key: 'part-time', en_label: 'Part-time', zh_label: '兼职' },
+            { key: 'contract', en_label: 'Contract', zh_label: '合同' },
+            { key: 'temporary', en_label: 'Temporary', zh_label: '临时' },
+            { key: 'internship', en_label: 'Internship', zh_label: '实习' },
+            { key: 'other', en_label: 'Other', zh_label: '其他' },
+            { key: 'volunteer', en_label: 'Volunteer', zh_label: '志愿者' },
+          ],
+        },
+        {
+          key: 'date',
+          type: 'object',
+          ui_hint: 'radio_group',
+          en_label: 'Date Posted',
+          zh_label: '发布日期',
+          options: [
+            { key: 'all_time', en_label: 'All Time', zh_label: '任何时间' },
+            { key: 'month', en_label: 'Past Month', zh_label: '过去一个月' },
+            { key: 'week', en_label: 'Past Week', zh_label: '过去一周' },
+            { key: '24_hours', en_label: 'Past 24 Hours', zh_label: '过去24小时' },
+            {
+              key: 'custom_hours', 
+              en_label: 'Past', 
+              zh_label: '过去',
+              inline_input: {
+                key: 'customHours',
+                en_unit: 'hours',
+                zh_unit: '小时'
+              }
+            },
+          ],
+        }
+      ],
+    },
+    {
+        key: 'advanced_settings',
+        group_name_en: 'Advanced Settings',
+        group_name_zh: '高级设置',
+        fields: [
+            {
+                key: 'companyBlacklist',
+                type: 'array',
+                ui_hint: 'textarea',
+                en_label: 'Company Blacklist (one per line):',
+                zh_label: '公司黑名单 (每行一个):',
+            },
+            {
+                key: 'titleBlacklist',
+                type: 'array',
+                ui_hint: 'textarea',
+                en_label: 'Title Blacklist (one per line):',
+                zh_label: '职位黑名单 (每行一个):',
+            },
+            {
+                key: 'posterBlacklist',
+                type: 'array',
+                ui_hint: 'textarea',
+                en_label: 'Poster Blacklist (one per line):',
+                zh_label: '发布者黑名单 (每行一个):',
+            },
+            {
+                key: 'languages',
+                type: 'array',
+                ui_hint: 'card_list',
+                en_label: 'Language Skills',
+                zh_label: '语言能力',
+                item_schema: {
+                    type: 'object',
+                    properties: [
+                        { key: 'name', type: 'string', ui_hint: 'text_input', en_label: 'Language', zh_label: '语言' },
+                        { key: 'proficiency', type: 'string', ui_hint: 'select', en_label: 'Proficiency', zh_label: '熟练度', options: [
+                          { key: 'none', en_label: 'None', zh_label: '无' },
+                          { key: 'conversational', en_label: 'Conversational', zh_label: '会话' },
+                          { key: 'professional', en_label: 'Professional', zh_label: '专业' },
+                          { key: 'native', en_label: 'Native or bilingual', zh_label: '母语或双语' },
+                        ] },
+                    ],
+                },
+            },
+            {
+                key: 'experience',
+                type: 'array',
+                ui_hint: 'card_list',
+                en_label: 'Experience (Skill: Years)',
+                zh_label: '经验 (技能: 年数)',
+                item_schema: {
+                    type: 'object',
+                    properties: [
+                        { key: 'name', type: 'string', ui_hint: 'text_input', en_label: 'Skill/Domain', zh_label: '技能/领域' },
+                        { key: 'years', type: 'number', ui_hint: 'number_input', en_label: 'Years', zh_label: '年数' },
+                    ],
+                },
+            },
+            {
+                key: 'customQuestions',
+                type: 'array',
+                ui_hint: 'card_list',
+                en_label: 'Custom Q&A',
+                zh_label: '自定义问答',
+                item_schema: {
+                    type: 'object',
+                    properties: [
+                        { key: 'question', type: 'string', ui_hint: 'textarea', en_label: 'Question', zh_label: '问题' },
+                        { key: 'answer', type: 'string', ui_hint: 'textarea', en_label: 'Answer', zh_label: '答案' },
+                    ],
+                },
+            },
+            {
+                key: 'outputFileDirectory',
+                type: 'string',
+                ui_hint: 'text_input',
+                en_label: 'Log Output Directory:',
+                zh_label: '日志输出目录:',
+            },
+            {
+                key: 'evaluateJobFit',
+                type: 'boolean',
+                ui_hint: 'checkbox_prompt',
+                en_label: 'Evaluate Job Fit',
+                zh_label: '评估工作匹配度',
+                prompt_config: {
+                  button_label_key: 'custom_prompt_button',
+                  modal_title_key: 'custom_prompt_modal_title',
+                  target_field: 'jobFitPrompt'
+                }
+            },
+            {
+                key: 'jobFitPrompt',
+                type: 'string',
+                ui_hint: 'hidden',
+                en_label: 'Job Fit Prompt',
+                zh_label: '工作匹配度提示词',
+            },
+            {
+                key: 'debug',
+                type: 'boolean',
+                ui_hint: 'checkbox',
+                en_label: 'Debug Mode',
+                zh_label: '调试模式',
+            },
+            {
+                key: 'speed_mode',
+                type: 'string',
+                ui_hint: 'radio_group_inline',
+                en_label: 'AI Speed Mode',
+                zh_label: 'AI速度模式',
+                options: [
+                    { key: 'slow', en_label: 'Slow (Give AI more time to think)', zh_label: '慢速模式 (给予AI更长的思考时间)' },
+                    { key: 'fast', en_label: 'Fast (Reduce AI thinking time)', zh_label: '快速模式 (减少AI思考时间)' },
+                ],
+            },
+            {
+                key: 'checkboxes',
+                type: 'object',
+                ui_hint: 'checkbox_group',
+                en_label: 'Application Questions Default Answers (Yes/No)',
+                zh_label: '申请问题默认回答 (是/否)',
+                options: [
+                    { key: 'driversLicence', en_label: "Have Driver's License?", zh_label: '有驾照?' },
+                    { key: 'requireVisa', en_label: 'Require Visa Sponsorship?', zh_label: '需签证担保?' },
+                    { key: 'legallyAuthorized', en_label: 'Legally Authorized to Work?', zh_label: '有合法工作权?' },
+                    { key: 'certifiedProfessional', en_label: 'Have Professional Certification?', zh_label: '有专业认证?' },
+                    { key: 'urgentFill', en_label: 'Can Start Immediately?', zh_label: '可立即开始?' },
+                    { key: 'commute', en_label: 'Accept Commuting?', zh_label: '接受通勤?' },
+                    { key: 'drugTest', en_label: 'Accept Drug Test?', zh_label: '接受药物测试?' },
+                    { key: 'assessment', en_label: 'Willing to Complete Assessment?', zh_label: '愿意完成评估?' },
+                    { key: 'securityClearance', en_label: 'Security Clearance', zh_label: '有安全许可?' },
+                    { key: 'backgroundCheck', en_label: 'Accept Background Check?', zh_label: '接受背景调查?' },
+                ]
+            }
+        ],
+    },
+    {
+        key: 'personal_profile',
+        group_name_en: 'Personal Profile',
+        group_name_zh: '个人资料',
+        fields: [
+            {
+                key: 'eeo',
+                type: 'object',
+                ui_hint: 'grid_select',
+                en_label: 'EEO Information',
+                zh_label: 'EEO信息',
+                options: [
+                    { key: 'gender', en_label: 'Gender:', zh_label: '性别:', items: ['Decline to self-identify', 'Male', 'Female'] },
+                    { key: 'race', en_label: 'Race:', zh_label: '种族:', items: ['Decline to self-identify', 'White', 'Black or African American', 'Asian', 'American Indian or Alaska Native', 'Native Hawaiian or Other Pacific Islander', 'Two or More Races'] },
+                    { key: 'veteran', en_label: 'Veteran Status:', zh_label: '退伍军人状态:', items: ['Decline to self-identify', 'I am a protected veteran', 'I am not a protected veteran'] },
+                    { key: 'disability', en_label: 'Disability Status:', zh_label: '残障状态:', items: ['Decline to self-identify', 'Yes, I have a disability, or previously had one', 'No, I do not have a disability and have not had one in the past'] },
+                ]
+            },
+            {
+                key: 'workExperiences',
+                type: 'array',
+                ui_hint: 'card_list',
+                en_label: 'Work Experience',
+                zh_label: '工作经历',
+                item_schema: {
+                  type: 'object',
+                  properties: [
+                    { key: 'title', type: 'string', ui_hint: 'text_input', en_label: 'Title', zh_label: '职位' },
+                    { key: 'company', type: 'string', ui_hint: 'text_input', en_label: 'Company', zh_label: '公司' },
+                    { key: 'from_month', type: 'string', ui_hint: 'select', en_label: 'From Month', zh_label: '开始月份', options: [
+                      { key: 'January', en_label: 'January', zh_label: '一月'},
+                      { key: 'February', en_label: 'February', zh_label: '二月'},
+                      { key: 'March', en_label: 'March', zh_label: '三月'},
+                      { key: 'April', en_label: 'April', zh_label: '四月'},
+                      { key: 'May', en_label: 'May', zh_label: '五月'},
+                      { key: 'June', en_label: 'June', zh_label: '六月'},
+                      { key: 'July', en_label: 'July', zh_label: '七月'},
+                      { key: 'August', en_label: 'August', zh_label: '八月'},
+                      { key: 'September', en_label: 'September', zh_label: '九月'},
+                      { key: 'October', en_label: 'October', zh_label: '十月'},
+                      { key: 'November', en_label: 'November', zh_label: '十一月'},
+                      { key: 'December', en_label: 'December', zh_label: '十二月'}
+                    ]},
+                    { key: 'from_year', type: 'string', ui_hint: 'text_input', en_label: 'From Year', zh_label: '开始年份' },
+                    { key: 'to_month', type: 'string', ui_hint: 'select', en_label: 'To Month', zh_label: '结束月份', options: [
+                      { key: 'January', en_label: 'January', zh_label: '一月'},
+                      { key: 'February', en_label: 'February', zh_label: '二月'},
+                      { key: 'March', en_label: 'March', zh_label: '三月'},
+                      { key: 'April', en_label: 'April', zh_label: '四月'},
+                      { key: 'May', en_label: 'May', zh_label: '五月'},
+                      { key: 'June', en_label: 'June', zh_label: '六月'},
+                      { key: 'July', en_label: 'July', zh_label: '七月'},
+                      { key: 'August', en_label: 'August', zh_label: '八月'},
+                      { key: 'September', en_label: 'September', zh_label: '九月'},
+                      { key: 'October', en_label: 'October', zh_label: '十月'},
+                      { key: 'November', en_label: 'November', zh_label: '十一月'},
+                      { key: 'December', en_label: 'December', zh_label: '十二月'}
+                    ]},
+                    { key: 'to_year', type: 'string', ui_hint: 'text_input', en_label: 'To Year', zh_label: '结束年份' },
+                    { key: 'current', type: 'boolean', ui_hint: 'checkbox', en_label: 'Currently work here', zh_label: '当前在职' },
+                    { key: 'description', type: 'string', ui_hint: 'textarea', en_label: 'Description', zh_label: '描述' },
+                  ],
+                },
+            },
+            {
+                key: 'educations',
+                type: 'array',
+                ui_hint: 'card_list',
+                en_label: 'Education',
+                zh_label: '教育经历',
+                item_schema: {
+                  type: 'object',
+                  properties: [
+                    { key: 'school', type: 'string', ui_hint: 'text_input', en_label: 'School', zh_label: '学校' },
+                    { key: 'degree', type: 'string', ui_hint: 'text_input', en_label: 'Degree', zh_label: '学位' },
+                    { key: 'major', type: 'string', ui_hint: 'text_input', en_label: 'Major', zh_label: '专业' },
+                    { key: 'from_month', type: 'string', ui_hint: 'select', en_label: 'From Month', zh_label: '开始月份', options: [
+                      { key: 'January', en_label: 'January', zh_label: '一月'},
+                      { key: 'February', en_label: 'February', zh_label: '二月'},
+                      { key: 'March', en_label: 'March', zh_label: '三月'},
+                      { key: 'April', en_label: 'April', zh_label: '四月'},
+                      { key: 'May', en_label: 'May', zh_label: '五月'},
+                      { key: 'June', en_label: 'June', zh_label: '六月'},
+                      { key: 'July', en_label: 'July', zh_label: '七月'},
+                      { key: 'August', en_label: 'August', zh_label: '八月'},
+                      { key: 'September', en_label: 'September', zh_label: '九月'},
+                      { key: 'October', en_label: 'October', zh_label: '十月'},
+                      { key: 'November', en_label: 'November', zh_label: '十一月'},
+                      { key: 'December', en_label: 'December', zh_label: '十二月'}
+                    ]},
+                    { key: 'from_year', type: 'string', ui_hint: 'text_input', en_label: 'From Year', zh_label: '开始年份' },
+                    { key: 'to_month', type: 'string', ui_hint: 'select', en_label: 'To Month', zh_label: '结束月份', options: [
+                      { key: 'January', en_label: 'January', zh_label: '一月'},
+                      { key: 'February', en_label: 'February', zh_label: '二月'},
+                      { key: 'March', en_label: 'March', zh_label: '三月'},
+                      { key: 'April', en_label: 'April', zh_label: '四月'},
+                      { key: 'May', en_label: 'May', zh_label: '五月'},
+                      { key: 'June', en_label: 'June', zh_label: '六月'},
+                      { key: 'July', en_label: 'July', zh_label: '七月'},
+                      { key: 'August', en_label: 'August', zh_label: '八月'},
+                      { key: 'September', en_label: 'September', zh_label: '九月'},
+                      { key: 'October', en_label: 'October', zh_label: '十月'},
+                      { key: 'November', en_label: 'November', zh_label: '十一月'},
+                      { key: 'December', en_label: 'December', zh_label: '十二月'}
+                    ]},
+                    { key: 'to_year', type: 'string', ui_hint: 'text_input', en_label: 'To Year', zh_label: '结束年份' },
+                    { key: 'current', type: 'boolean', ui_hint: 'checkbox', en_label: 'Currently enrolled', zh_label: '当前在读' },
+                  ],
+                },
+            },
+            {
+                key: 'checkboxes.degreeCompleted',
+                type: 'array',
+                en_label: 'Degree Completed',
+                zh_label: '已完成学位',
+                ui_hint: 'checkbox_group',
+                options: [
+                    { key: 'High School Diploma', en_label: 'High School Diploma', zh_label: '高中毕业' },
+                    { key: 'Bachelor\'s Degree', en_label: 'Bachelor\'s Degree', zh_label: '学士学位' },
+                    { key: 'Master of Business Administration', en_label: 'Master of Business Administration', zh_label: '工商管理硕士' },
+                    { key: 'Doctor of Medicine', en_label: 'Doctor of Medicine', zh_label: '医学博士' },
+                    { key: 'Associate\'s Degree', en_label: 'Associate\'s Degree', zh_label: '副学士学位' },
+                    { key: 'Master\'s Degree', en_label: 'Master\'s Degree', zh_label: '硕士学位' },
+                    { key: 'Doctor of Philosophy', en_label: 'Doctor of Philosophy', zh_label: '哲学博士' },
+                    { key: 'Doctor of Law', en_label: 'Doctor of Law', zh_label: '法律博士' },
+                ]
+            },
+            {
+                key: 'universityGpa',
+                type: 'number',
+                ui_hint: 'number_input',
+                en_label: 'University GPA:',
+                zh_label: '大学GPA:',
+            },
+            {
+                key: 'salaryMinimum',
+                type: 'number',
+                ui_hint: 'number_input',
+                en_label: 'Minimum Expected Salary:',
+                zh_label: '最低期望薪资:',
+            },
+            {
+                key: 'noticePeriod',
+                type: 'number',
+                ui_hint: 'number_input',
+                en_label: 'Notice Period (weeks):',
+                zh_label: '通知周期(周):',
+            },
+        ],
+    },
+  ],
+};

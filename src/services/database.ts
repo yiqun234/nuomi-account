@@ -1,31 +1,40 @@
-import { get, ref, set } from 'firebase/database'
+import { ref, get, set } from 'firebase/database'
 import { realtimeDb } from './firebase'
-import type { UserConfig } from '../types/config'
+import type { AppConfig } from '../types'
 
 /**
  * Fetches the user's configuration from the Realtime Database.
- * @param uid The user's unique ID.
- * @returns A promise that resolves to the user's configuration.
+ * @param userId The user's unique ID.
+ * @returns A promise that resolves to the user's configuration or null.
  */
-export const getUserConfig = async (uid: string): Promise<UserConfig> => {
-  const configRef = ref(realtimeDb, `configs/${uid}`)
-  const snapshot = await get(configRef)
-  if (snapshot.exists()) {
-    return snapshot.val()
+export const getConfig = async (userId: string): Promise<AppConfig | null> => {
+  try {
+    const configRef = ref(realtimeDb, `configs/${userId}`)
+    const snapshot = await get(configRef)
+    if (snapshot.exists()) {
+      return snapshot.val() as AppConfig
+    }
+    return null
+  } catch (error) {
+    console.error('Error getting config:', error)
+    throw new Error('Failed to load configuration.')
   }
-  // Return a default or empty config if nothing is found
-  return {} as UserConfig
 }
 
 /**
  * Saves the user's configuration to the Realtime Database.
- * @param uid The user's unique ID.
+ * @param userId The user's unique ID.
  * @param config The user's configuration object.
  */
-export const saveUserConfig = async (
-  uid: string,
-  config: UserConfig,
+export const saveConfig = async (
+  userId: string,
+  config: AppConfig,
 ): Promise<void> => {
-  const configRef = ref(realtimeDb, `configs/${uid}`)
-  await set(configRef, config)
+  try {
+    const configRef = ref(realtimeDb, `configs/${userId}`)
+    await set(configRef, config)
+  } catch (error) {
+    console.error('Error saving config:', error)
+    throw new Error('Failed to save configuration.')
+  }
 } 

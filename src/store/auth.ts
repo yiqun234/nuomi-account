@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { onAuthStateChanged, type User } from 'firebase/auth'
+import { onAuthStateChanged, signOut, type User } from 'firebase/auth'
 import { goOffline, goOnline } from 'firebase/database'
 import { auth, realtimeDb } from '../services/firebase'
 import { getOrCreateApiKey } from '../services/apiKey'
@@ -7,6 +7,7 @@ import { getOrCreateApiKey } from '../services/apiKey'
 interface AuthState {
   user: User | null
   isLoading: boolean
+  logout: () => Promise<void>
 }
 
 const useAuthStore = create<AuthState>((set) => {
@@ -34,6 +35,14 @@ const useAuthStore = create<AuthState>((set) => {
   return {
     user: null,
     isLoading: true,
+    logout: async () => {
+      try {
+        await signOut(auth)
+        // onAuthStateChanged will handle the state update
+      } catch (error) {
+        console.error('Error signing out: ', error)
+      }
+    },
   }
 })
 

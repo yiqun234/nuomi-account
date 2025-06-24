@@ -51,6 +51,7 @@ export interface Field {
     zh_unit: string;
   };
   value_field_schema?: Field;
+  importer_options?: { key: string; en_label: string; zh_label: string; }[];
 }
 
 export interface Group {

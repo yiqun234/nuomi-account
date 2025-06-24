@@ -198,5 +198,93 @@
     "experience_key_label": "Skill/Domain",
     "experience_years_label": "Years",
     "customQuestions_key_label": "Question",
-    "customQuestions_answer_label": "Answer"
+    "customQuestions_answer_label": "Answer",
+    "cannot_edit_default_key": "Cannot change the key of a default item.",
+    "action_not_allowed": "Action Not Allowed",
+    "cannot_delete_default_item": "This is a default item and cannot be deleted.",
+    "no_items_to_delete_title": "No Items to Delete",
+    "no_items_to_delete_content": "The selected items are defaults and cannot be deleted.",
+    "resume_importer.modal_title": "Smart Resume Import",
+    "step1_title": "Upload Resume",
+    "step1_desc": "Upload your file",
+    "step2_title": "Select Options",
+    "step2_desc": "Select options",
+    "step3_title": "Review Results",
+    "step3_desc": "Review results",
+    "resume_importer.upload_text": "Click or drag PDF file to this area",
+    "resume_importer.upload_hint": "Supports single PDF file import.",
+    "resume_importer.upload_success": "Upload Successful!",
+    "resume_importer.proceed_next": "Please select the import options on the right and proceed.",
+    "resume_importer.options_title": "AI Import Options",
+    "resume_importer.options_desc": "Select which sections to update from the resume.",
+    "resume_importer.upload_success_filename": "Successfully uploaded: {{filename}}",
+    "Run Analysis": "Run Analysis",
+    "Done": "Done",
+    "resume_importer.success_title": "Import Successful!",
+    "resume_importer.success_message": "AI has finished. The following {{count}} categories have been updated:",
+    "resume_importer.final_note": "Please review the changes in the form and click \"Save\" on the main page.",
+    "importer_update_log.skills": "Skills: Updated {{count}} skill(s).",
+    "importer_update_log.personal_info": "Personal Information: Updated {{count}} fields",
+    "importer_update_log.work_experience": "Work Experience: Updated {{count}} item(s)",
+    "importer_update_log.education": "Education: Updated {{count}} item(s)",
+    "importer_update_log.eeo": "EEO Information: Updated {{count}} fields",
+    "importer_update_log.salary": "Salary Expectation: Updated",
+    "resume_importer.error_ocr_auth": "API key or User ID is missing for OCR request.",
+    "resume_importer.error_ai_url": "AI Server URL is not configured.",
+    "resume_importer.error_ai_auth": "API key or User ID is missing.",
+    "resume_importer.error_process_failed": "Failed to process resume.",
+    "resume_importer.error_server_response": "Server responded with {{status}}: {{text}}",
+    "resume_importer.no_options_selected": "Please select at least one option to extract.",
+    "resume_importer.parsing_resume": "AI is parsing your resume...",
+    "resume_importer.uploading_resume": "Uploading and processing resume...",
+    "resume_importer.pdf_read_error": "Failed to process resume.",
+    "importer_options.languages": "Language Skills",
+    "importer_options.skills": "Skills & Experience",
+    "importer_options.personal_info": "Personal Information",
+    "importer_options.eeo": "EEO Information",
+    "importer_options.salary": "Salary Expectation",
+    "importer_options.work_experience": "Work History",
+    "importer_options.education": "Education History",
+    "run_importer": "Run AI Assistant",
+    "login": {
+      "title": "Login to Your Account",
+      "email_placeholder": "Enter your email",
+      "password_placeholder": "Enter your password",
+      "login_button": "Login",
+      "register_button": "Register",
+      "google_signin_button": "Sign in with Google",
+      "success": {
+        "login": "Login successful!",
+        "google": "Google sign-in successful!"
+      },
+      "error": {
+        "invalid_credentials": "Invalid email or password.",
+        "email_in_use": "This email is already in use.",
+        "weak_password": "Password is too weak. Use at least 6 characters.",
+        "generic": "An unknown error occurred. Please try again."
+      },
+      "validation": {
+        "email_required": "Please input your email!",
+        "email_invalid": "Please enter a valid email!",
+        "password_required": "Please input your password!",
+        "password_min_length": "Password must be at least 6 characters!"
+      }
+    },
+    "register": {
+      "title": "Create a New Account",
+      "confirm_password_placeholder": "Confirm your password",
+      "already_have_account": "Already have an account?",
+      "success": {
+        "register": "Registration successful! Redirecting..."
+      },
+      "error": {
+        "email_in_use": "This email is already in use.",
+        "weak_password": "Password is too weak. Use at least 6 characters.",
+        "generic": "An unknown error occurred. Please try again."
+      },
+      "validation": {
+        "confirm_required": "Please confirm your password!",
+        "password_mismatch": "The two passwords that you entered do not match!"
+      }
+    }
 }

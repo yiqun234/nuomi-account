@@ -26,6 +26,7 @@ import { useTranslation } from 'react-i18next'
 import yaml from 'js-yaml'
 import { useAuth } from '../hooks/useAuth'
 import { getConfig, saveConfig } from '../services/database'
+import { getOrCreateApiKey } from '../services/apiKey'
 import { configSchema } from '../config/schema'
 import { defaultConfig } from '../config/config.default'
 import SchemaForm from '../components/SchemaForm'
@@ -57,6 +58,28 @@ const mergeDeep = (target: Record<string, unknown>, source: Record<string, unkno
   return output;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
+const removeUndefinedDeep = <T extends unknown>(obj: T): T => {
+    if (Array.isArray(obj)) {
+        return obj.map(removeUndefinedDeep) as unknown as T;
+    }
+
+    if (isObject(obj)) {
+        const newObj: Record<string, unknown> = {};
+        for (const key in obj) {
+            if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                const value = obj[key];
+                if (value !== undefined) {
+                    newObj[key] = removeUndefinedDeep(value);
+                }
+            }
+        }
+        return newObj as T;
+    }
+
+    return obj;
+};
+
 const DashboardPage: React.FC = () => {
   const { t } = useTranslation()
   const { user, logout } = useAuth()
@@ -65,6 +88,7 @@ const DashboardPage: React.FC = () => {
   const [saving, setSaving] = useState(false)
   const [selectedKey, setSelectedKey] = useState(configSchema.groups[0].key)
   const [initialValues, setInitialValues] = useState<AppConfig | null>(null);
+  const [apiKey, setApiKey] = useState<string | null>(null);
   const [messageApi, contextHolder] = message.useMessage();
   const importFileRef = useRef<HTMLInputElement>(null);
 
@@ -73,6 +97,8 @@ const DashboardPage: React.FC = () => {
       setLoading(true)
       try {
         const remoteConfig = await getConfig(user.uid)
+        const api_key = await getOrCreateApiKey(user.uid)
+        setApiKey(api_key)
 
         const config = [defaultConfig, remoteConfig || {}].reduce<Record<string, unknown>>(
             mergeDeep,
@@ -132,7 +158,10 @@ const DashboardPage: React.FC = () => {
       // Then, get ALL values from the entire form, including non-visible fields.
       const allValues = form.getFieldsValue(true);
       
-      const valuesToSave: Record<string, unknown> = { ...allValues };
+      // Recursively remove any keys with an 'undefined' value before saving.
+      const cleanedValues = removeUndefinedDeep(allValues);
+      
+      const valuesToSave: Record<string, unknown> = { ...cleanedValues };
 
       // Exclude client-side only fields before saving
       delete valuesToSave.uploads;
@@ -323,7 +352,7 @@ const DashboardPage: React.FC = () => {
                 form={form}
                 layout="vertical"
               >
-                {selectedGroup && <SchemaForm group={selectedGroup} form={form} t={t} />}
+                {selectedGroup && <SchemaForm group={selectedGroup} form={form} t={t} user={user} apiKey={apiKey} />}
               </Form>
             )}
           </Content>

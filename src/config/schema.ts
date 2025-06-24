@@ -56,6 +56,27 @@ export const configSchema: ConfigSchema = {
           en_label: 'Disable System Anti-lock/Sleep',
           zh_label: '禁用系统防锁定/休眠',
         },
+        {
+          key: 'resumeImporter',
+          type: 'action',
+          ui_hint: 'ai_importer',
+          en_label: 'AI Smart Import',
+          zh_label: '智能简历导入',
+          button: {
+            key: 'run_importer',
+            en_label: 'Run AI Assistant',
+            zh_label: '运行AI助手'
+          },
+          importer_options: [
+            { key: 'languages', en_label: 'Language Skills', zh_label: '语言能力' },
+            { key: 'skills', en_label: 'Skills & Experience', zh_label: '技能经验' },
+            { key: 'personal_info', en_label: 'Personal Information', zh_label: '个人资料' },
+            { key: 'eeo', en_label: 'EEO Information', zh_label: 'EEO信息' },
+            { key: 'salary', en_label: 'Salary Expectation', zh_label: '最低期望薪资' },
+            { key: 'work_experience', en_label: 'Work History', zh_label: '工作经历' },
+            { key: 'education', en_label: 'Education History', zh_label: '学历经历' }
+          ]
+        },
       ],
     },
     {
@@ -396,8 +417,8 @@ export const configSchema: ConfigSchema = {
                 options: [
                     { key: 'gender', en_label: 'Gender:', zh_label: '性别:', items: ['Decline to self-identify', 'Male', 'Female'] },
                     { key: 'race', en_label: 'Race:', zh_label: '种族:', items: ['Decline to self-identify', 'White', 'Black or African American', 'Asian', 'American Indian or Alaska Native', 'Native Hawaiian or Other Pacific Islander', 'Two or More Races'] },
-                    { key: 'veteran', en_label: 'Veteran Status:', zh_label: '退伍军人状态:', items: ['Decline to self-identify', 'I am a protected veteran', 'I am not a protected veteran'] },
-                    { key: 'disability', en_label: 'Disability Status:', zh_label: '残障状态:', items: ['Decline to self-identify', 'Yes, I have a disability, or previously had one', 'No, I do not have a disability and have not had one in the past'] },
+                    { key: 'veteran', en_label: 'Veteran Status:', zh_label: '退伍军人状态:', items: ['I choose not to self-identify', 'I am a protected veteran', 'I am a veteran but not a protected veteran', 'I am not a protected veteran'] },
+                    { key: 'disability', en_label: 'Disability Status:', zh_label: '残障状态:', items: ['I choose not to self-identify', 'Yes, I have a disability, or have had one in the past','No, I do not have a disability and have not had one in the past'] },
                 ]
             },
             {

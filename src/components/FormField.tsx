@@ -11,6 +11,8 @@ import SchemaForm from './SchemaForm';
 import DataTypeAwareCheckboxGroup from './DataTypeAwareCheckboxGroup';
 import ManagedKeyValueList from './ManagedKeyValueList';
 import SimpleKeyValueManager from './SimpleKeyValueManager';
+import ResumeImporter from './ResumeImporter';
+import type { User } from 'firebase/auth';
 
 const { TextArea } = Input;
 
@@ -136,7 +138,7 @@ const RadioGroupWithInlineInput: React.FC<{field: Field; t: TFunction, form: For
     );
 };
 
-const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (string | number)[]) => {
+const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (string | number)[], user: User | null, apiKey: string | null) => {
   const label = t(field.key, field.en_label);
 
   switch (field.ui_hint) {
@@ -148,7 +150,7 @@ const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (
             group_name_en: field.group_name_en!,
             group_name_zh: field.group_name_zh!,
             fields: field.fields!
-        }} t={t} form={form} namePrefix={namePath}/>
+        }} t={t} form={form} namePrefix={namePath} user={user} apiKey={apiKey} />
     case 'checkbox_prompt':
         return <CheckboxWithPromptModal field={field} t={t} form={form} />;
     case 'checkbox_with_inline_input':
@@ -293,17 +295,24 @@ const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (
         );
 
     case 'managed_key_value_list':
-        return (
-            <Form.Item name={namePath} noStyle>
-                 <ManagedKeyValueList
-                    label={label}
-                    t={t}
-                    valueFieldSchema={field.value_field_schema!}
-                    keyFieldLabel={t(`${field.key}_key_label`, field.key_label_en || '')}
-                    valueFieldLabel={t(`${field.key}_${field.value_field_schema!.key}_label`, field.value_field_schema!.en_label || '')}
-                />
-            </Form.Item>
-        );
+        {
+            const nonDeletableKeys = field.key === 'experience' 
+                ? ['default'] 
+                : [];
+            
+            return (
+                <Form.Item name={namePath} noStyle>
+                     <ManagedKeyValueList
+                        label={label}
+                        t={t}
+                        valueFieldSchema={field.value_field_schema!}
+                        keyFieldLabel={t(`${field.key}_key_label`, field.key_label_en || '')}
+                        valueFieldLabel={t(`${field.key}_${field.value_field_schema!.key}_label`, field.value_field_schema!.en_label || '')}
+                        nonDeletableKeys={nonDeletableKeys}
+                    />
+                </Form.Item>
+            );
+        }
     case 'simple_key_value_list':
         return (
             <Form.Item name={namePath} noStyle>
@@ -358,17 +367,21 @@ const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (
                     <Form.Item name={namePath} valuePropName="checked" noStyle>
                         <Checkbox>{label}</Checkbox>
                     </Form.Item>
-                    <Button>{String(t(`${field.key}_${field.button!.key}_button`, field.button!.en_label))}</Button>
+                    <ResumeImporter field={field} t={t} form={form} user={user} apiKey={apiKey} />
                 </Space>
             </Form.Item>
+        )
+    case 'ai_importer':
+        return (
+            <ResumeImporter field={field} t={t} form={form} user={user} apiKey={apiKey} />
         )
     default:
       return null;
   }
 };
 
-const FormField = ({ field, t, form, namePath }: { field: Field; t: TFunction; form: FormInstance, namePath: (string|number)[] }) => {
-  return renderField(field, t, form, namePath);
+const FormField = ({ field, t, form, namePath, user, apiKey }: { field: Field; t: TFunction; form: FormInstance, namePath: (string|number)[], user: User | null, apiKey: string | null }) => {
+  return renderField(field, t, form, namePath, user, apiKey);
 };
 
 export default FormField; 

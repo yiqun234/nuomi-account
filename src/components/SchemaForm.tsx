@@ -4,15 +4,18 @@ import type { Group } from '../types';
 import type { FormInstance } from 'antd';
 import type { TFunction } from 'i18next';
 import React from 'react';
+import type { User } from 'firebase/auth';
 
 interface SchemaFormProps {
   group: Group;
   form: FormInstance;
   t: TFunction;
   namePrefix?: (string | number)[];
+  user: User | null;
+  apiKey: string | null;
 }
 
-const SchemaForm: React.FC<SchemaFormProps> = ({ group, form, t, namePrefix = [] }) => {
+const SchemaForm: React.FC<SchemaFormProps> = ({ group, form, t, namePrefix = [], user, apiKey }) => {
   return (
     <>
       <Typography.Title level={4}>{t(group.key, group.group_name_en)}</Typography.Title>
@@ -36,12 +39,13 @@ const SchemaForm: React.FC<SchemaFormProps> = ({ group, form, t, namePrefix = []
                   'radio_group_inline',
                   'checkbox_button',
                   'checkbox_prompt',
+                  'ai_importer',
                 ].includes(field.ui_hint)
                   ? 24
                   : 12
               }
             >
-              <FormField field={field} t={t} form={form} namePath={currentNamePath} />
+              <FormField field={field} t={t} form={form} namePath={currentNamePath} user={user} apiKey={apiKey} />
             </Col>
           );
         })}

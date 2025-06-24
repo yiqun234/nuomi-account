@@ -31,6 +31,7 @@ i18n
       // optional expire and domain for set cookie
       lookupLocalStorage: 'i18nextLng',
     },
+    load: 'languageOnly'
   })
 
 export default i18n 

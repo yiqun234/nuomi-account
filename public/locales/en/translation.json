@@ -286,5 +286,14 @@
         "confirm_required": "Please confirm your password!",
         "password_mismatch": "The two passwords that you entered do not match!"
       }
+    },
+    "authorize": {
+      "title": "Authorizing Application",
+      "processing": "Processing authorization, please wait...",
+      "success_title": "Authorization Successful!",
+      "success_subtitle": "You can now close this window and return to the application.",
+      "error_title": "Authorization Failed",
+      "error_callback_not_found": "Authorization failed: The callback URL was not found.",
+      "error_unknown": "An unknown error occurred during authorization."
     }
 }

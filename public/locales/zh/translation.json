@@ -282,5 +282,14 @@
       "confirm_required": "请确认您的密码！",
       "password_mismatch": "两次输入的密码不一致！"
     }
+  },
+  "authorize": {
+    "title": "应用授权",
+    "processing": "正在处理授权，请稍候...",
+    "success_title": "授权成功！",
+    "success_subtitle": "您现在可以关闭此窗口并返回应用程序。",
+    "error_title": "授权失败",
+    "error_callback_not_found": "授权失败：未找到回调URL。",
+    "error_unknown": "授权过程中发生未知错误。"
   }
 }

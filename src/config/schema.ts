@@ -1,4 +1,5 @@
 import type { ConfigSchema } from '../types/index';
+import { countryCodeOptions } from './countryCodes';
 
 export const configSchema: ConfigSchema = {
   groups: [
@@ -21,43 +22,33 @@ export const configSchema: ConfigSchema = {
           en_label: 'LinkedIn Password:',
           zh_label: '领英密码:',
         },
-        {
-          key: 'uploads.resume',
-          type: 'string',
-          ui_hint: 'text_input_browse',
-          en_label: 'Resume File Path:',
-          zh_label: '简历文件路径:',
-          description_en: 'Only PDF format is supported (Max 2MB)',
-          description_zh: '仅支持PDF格式(最大2MB)',
-          buttons: [
-            { key: 'browse', en_label: 'Browse', zh_label: '浏览' },
-            { key: 'extract', en_label: 'AI Extract Resume Text', zh_label: 'AI提取简历文本' }
-          ]
-        },
-        {
-          key: 'uploads.coverLetter',
-          type: 'string',
-          ui_hint: 'text_input_browse',
-          en_label: 'Cover Letter File Path:',
-          zh_label: '求职信文件路径:',
-          description_en: 'Only PDF format is supported (Max 512KB)',
-          description_zh: '仅支持PDF格式(最大512KB)',
-          buttons: [
-            { key: 'browse', en_label: 'Browse', zh_label: '浏览' }
-          ]
-        },
-        {
-          key: 'uploads.photo',
-          type: 'string',
-          ui_hint: 'text_input_browse',
-          en_label: 'Photo File Path:',
-          zh_label: '照片文件路径:',
-          description_en: 'Supports PNG, JPG, JPEG (Max 1MB)',
-          description_zh: '支持PNG, JPG, JPEG (最大1MB)',
-          buttons: [
-            { key: 'browse', en_label: 'Browse', zh_label: '浏览' }
-          ]
-        },
+        // {
+        //   key: 'uploads.resume',
+        //   type: 'string',
+        //   ui_hint: 'text_input',
+        //   en_label: 'Resume File Path:',
+        //   zh_label: '简历文件路径:',
+        //   description_en: 'Only PDF format is supported (Max 2MB)',
+        //   description_zh: '仅支持PDF格式(最大2MB)',
+        // },
+        // {
+        //   key: 'uploads.coverLetter',
+        //   type: 'string',
+        //   ui_hint: 'text_input',
+        //   en_label: 'Cover Letter File Path:',
+        //   zh_label: '求职信文件路径:',
+        //   description_en: 'Only PDF format is supported (Max 512KB)',
+        //   description_zh: '仅支持PDF格式(最大512KB)',
+        // },
+        // {
+        //   key: 'uploads.photo',
+        //   type: 'string',
+        //   ui_hint: 'text_input',
+        //   en_label: 'Photo File Path:',
+        //   zh_label: '照片文件路径:',
+        //   description_en: 'Supports PNG, JPG, JPEG (Max 1MB)',
+        //   description_zh: '支持PNG, JPG, JPEG (最大1MB)',
+        // },
         {
           key: 'disableAntiLock',
           type: 'boolean',
@@ -244,49 +235,56 @@ export const configSchema: ConfigSchema = {
             },
             {
                 key: 'languages',
-                type: 'array',
-                ui_hint: 'card_list',
+                type: 'object',
+                ui_hint: 'managed_key_value_list',
                 en_label: 'Language Skills',
                 zh_label: '语言能力',
-                item_schema: {
-                    type: 'object',
-                    properties: [
-                        { key: 'name', type: 'string', ui_hint: 'text_input', en_label: 'Language', zh_label: '语言' },
-                        { key: 'proficiency', type: 'string', ui_hint: 'select', en_label: 'Proficiency', zh_label: '熟练度', options: [
-                          { key: 'none', en_label: 'None', zh_label: '无' },
-                          { key: 'conversational', en_label: 'Conversational', zh_label: '会话' },
-                          { key: 'professional', en_label: 'Professional', zh_label: '专业' },
-                          { key: 'native', en_label: 'Native or bilingual', zh_label: '母语或双语' },
-                        ] },
-                    ],
-                },
+                key_label_en: 'Language',
+                key_label_zh: '语言',
+                value_field_schema: {
+                    key: 'proficiency',
+                    type: 'string',
+                    ui_hint: 'select',
+                    en_label: 'Proficiency',
+                    zh_label: '熟练度',
+                    options: [
+                        { key: 'none', value: 'None', en_label: 'None', zh_label: '无' },
+                        { key: 'conversational', value: 'Conversational', en_label: 'Conversational', zh_label: '会话' },
+                        { key: 'professional', value: 'Professional', en_label: 'Professional', zh_label: '专业' },
+                        { key: 'native', value: 'Native or bilingual', en_label: 'Native or bilingual', zh_label: '母语或双语' },
+                    ]
+                }
             },
             {
                 key: 'experience',
-                type: 'array',
-                ui_hint: 'card_list',
+                type: 'object',
+                ui_hint: 'managed_key_value_list',
                 en_label: 'Experience (Skill: Years)',
                 zh_label: '经验 (技能: 年数)',
-                item_schema: {
-                    type: 'object',
-                    properties: [
-                        { key: 'name', type: 'string', ui_hint: 'text_input', en_label: 'Skill/Domain', zh_label: '技能/领域' },
-                        { key: 'years', type: 'number', ui_hint: 'number_input', en_label: 'Years', zh_label: '年数' },
-                    ],
-                },
+                key_label_en: 'Skill/Domain',
+                key_label_zh: '技能/领域',
+                value_field_schema: {
+                    key: 'years',
+                    type: 'number',
+                    ui_hint: 'number_input',
+                    en_label: 'Years',
+                    zh_label: '年数',
+                }
             },
             {
                 key: 'customQuestions',
-                type: 'array',
-                ui_hint: 'card_list',
+                type: 'object',
+                ui_hint: 'simple_key_value_list',
                 en_label: 'Custom Q&A',
                 zh_label: '自定义问答',
-                item_schema: {
-                    type: 'object',
-                    properties: [
-                        { key: 'question', type: 'string', ui_hint: 'textarea', en_label: 'Question', zh_label: '问题' },
-                        { key: 'answer', type: 'string', ui_hint: 'textarea', en_label: 'Answer', zh_label: '答案' },
-                    ],
+                key_label_en: 'Question',
+                key_label_zh: '问题',
+                value_field_schema: {
+                    key: 'answer',
+                    type: 'string',
+                    ui_hint: 'textarea',
+                    en_label: 'Answer',
+                    zh_label: '答案',
                 },
             },
             {
@@ -359,6 +357,36 @@ export const configSchema: ConfigSchema = {
         group_name_en: 'Personal Profile',
         group_name_zh: '个人资料',
         fields: [
+            {
+                key: 'personalInfo',
+                type: 'object',
+                ui_hint: 'group',
+                group_name_en: 'Contact Information',
+                group_name_zh: '联系信息',
+                en_label: 'Contact Information',
+                zh_label: '联系信息',
+                fields: [
+                    { key: 'Pronouns', type: 'string', ui_hint: 'text_input', en_label: 'Pronouns', zh_label: '代词' },
+                    { key: 'First Name', type: 'string', ui_hint: 'text_input', en_label: 'First Name', zh_label: '名' },
+                    { key: 'Last Name', type: 'string', ui_hint: 'text_input', en_label: 'Last Name', zh_label: '姓' },
+                    { 
+                      key: 'Phone Country Code', 
+                      type: 'string', 
+                      ui_hint: 'select', 
+                      en_label: 'Phone Country Code', 
+                      zh_label: '电话国家代码',
+                      options: countryCodeOptions
+                    },
+                    { key: 'Mobile Phone Number', type: 'string', ui_hint: 'text_input', en_label: 'Mobile Phone Number', zh_label: '手机号码' },
+                    { key: 'Street address', type: 'string', ui_hint: 'text_input', en_label: 'Street address', zh_label: '街道地址' },
+                    { key: 'City', type: 'string', ui_hint: 'text_input', en_label: 'City', zh_label: '城市' },
+                    { key: 'State', type: 'string', ui_hint: 'text_input', en_label: 'State', zh_label: '州/省' },
+                    { key: 'Zip', type: 'string', ui_hint: 'text_input', en_label: 'Zip/Postal', zh_label: '邮政编码' },
+                    { key: 'Linkedin', type: 'string', ui_hint: 'text_input', en_label: 'LinkedIn Profile', zh_label: '领英资料' },
+                    { key: 'Website', type: 'string', ui_hint: 'text_input', en_label: 'Website', zh_label: '个人网站' },
+                    { key: 'MessageToManager', type: 'string', ui_hint: 'textarea', en_label: 'Message to Manager', zh_label: '给招聘经理的消息' }
+                ]
+            },
             {
                 key: 'eeo',
                 type: 'object',

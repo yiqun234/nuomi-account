@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 import {
   Form,
   Button,
@@ -20,8 +20,10 @@ import {
   FileTextOutlined,
   CodeOutlined,
   IdcardOutlined,
+  UploadOutlined,
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
+import yaml from 'js-yaml'
 import { useAuth } from '../hooks/useAuth'
 import { getConfig, saveConfig } from '../services/database'
 import { configSchema } from '../config/schema'
@@ -33,6 +35,28 @@ import type { Group, AppConfig, DatePosted } from '../types'
 const { Header, Sider, Content } = Layout
 const { Title } = Typography
 
+const isObject = (item: unknown): item is Record<string, unknown> => {
+  return item !== null && typeof item === 'object' && !Array.isArray(item);
+};
+
+const mergeDeep = (target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> => {
+  const output: Record<string, unknown> = { ...target };
+  if (isObject(target) && isObject(source)) {
+    Object.keys(source).forEach(key => {
+      const targetValue = output[key];
+      const sourceValue = source[key];
+      if (isObject(targetValue) && isObject(sourceValue)) {
+        // if both are objects, recurse
+        output[key] = mergeDeep(targetValue, sourceValue);
+      } else {
+        // otherwise, source value wins
+        output[key] = sourceValue;
+      }
+    });
+  }
+  return output;
+};
+
 const DashboardPage: React.FC = () => {
   const { t } = useTranslation()
   const { user, logout } = useAuth()
@@ -42,6 +66,7 @@ const DashboardPage: React.FC = () => {
   const [selectedKey, setSelectedKey] = useState(configSchema.groups[0].key)
   const [initialValues, setInitialValues] = useState<AppConfig | null>(null);
   const [messageApi, contextHolder] = message.useMessage();
+  const importFileRef = useRef<HTMLInputElement>(null);
 
   const loadData = useCallback(async () => {
     if (user) {
@@ -49,9 +74,10 @@ const DashboardPage: React.FC = () => {
       try {
         const remoteConfig = await getConfig(user.uid)
 
-        const config = remoteConfig
-          ? { ...defaultConfig }
-          : defaultConfig
+        const config = [defaultConfig, remoteConfig || {}].reduce<Record<string, unknown>>(
+            mergeDeep,
+            {},
+        ) as unknown as AppConfig
 
         setInitialValues(config);
       } catch (error) {
@@ -106,7 +132,11 @@ const DashboardPage: React.FC = () => {
       // Then, get ALL values from the entire form, including non-visible fields.
       const allValues = form.getFieldsValue(true);
       
-      const valuesToSave = { ...allValues };
+      const valuesToSave: Record<string, unknown> = { ...allValues };
+
+      // Exclude client-side only fields before saving
+      delete valuesToSave.uploads;
+      delete valuesToSave.textResume;
 
       // Convert date string back to object before saving
       if (valuesToSave.date && typeof valuesToSave.date === 'string') {
@@ -124,7 +154,7 @@ const DashboardPage: React.FC = () => {
         }
       }
 
-      await saveConfig(user.uid, valuesToSave)
+      await saveConfig(user.uid, valuesToSave as unknown as AppConfig);
       messageApi.success(t('Save Success'))
     } catch (errorInfo) {
       console.log('Failed:', errorInfo);
@@ -145,6 +175,53 @@ const DashboardPage: React.FC = () => {
       messageApi.success(t('Logged out successfully'))
     }
   }
+
+  const handleImportClick = () => {
+    importFileRef.current?.click();
+  };
+
+  const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const content = e.target?.result as string;
+            const importedData = yaml.load(content);
+            
+            if (!isObject(importedData)) {
+                throw new Error('Invalid YAML format. Must be an object.');
+            }
+
+            const currentValues: Record<string, unknown> = form.getFieldsValue(true);
+            const newConfig = mergeDeep(currentValues, importedData);
+
+            // Ensure client-side keys are removed from the final merged config
+            if ('uploads' in newConfig) {
+                delete newConfig.uploads;
+            }
+            if ('textResume' in newConfig) {
+                delete newConfig.textResume;
+            }
+            
+            form.setFieldsValue(newConfig);
+            messageApi.success(t('Import successful!'));
+
+        } catch (error) {
+            console.error('Failed to import YAML:', error);
+            messageApi.error(t('Failed to import YAML. Check file format.'));
+        } finally {
+            // Reset file input to allow re-importing the same file
+            if(event.target) event.target.value = '';
+        }
+    };
+    reader.onerror = () => {
+        messageApi.error(t('Failed to read file.'));
+        if(event.target) event.target.value = '';
+    };
+    reader.readAsText(file);
+  };
 
   const selectedGroup = configSchema.groups.find((g: Group) => g.key === selectedKey)
 
@@ -258,7 +335,17 @@ const DashboardPage: React.FC = () => {
             margin: '0 -24px -24px',
             padding: '16px 24px'
           }}>
+            <input
+              type="file"
+              ref={importFileRef}
+              style={{ display: 'none' }}
+              accept=".yaml,.yml"
+              onChange={handleFileImport}
+            />
             <Space>
+              <Button icon={<UploadOutlined />} onClick={handleImportClick}>
+                {t('Import', 'Import')}
+              </Button>
               <Button icon={<UndoOutlined />} onClick={handleReset} disabled={saving}>
                 {t('Reset', 'Reset')}
               </Button>

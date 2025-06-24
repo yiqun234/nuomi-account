@@ -9,6 +9,12 @@ export interface FieldOption {
     en_unit: string;
     zh_unit: string;
   };
+  prompt_config?: {
+    button_label_key: string;
+    modal_title_key: string;
+    target_field: string;
+  };
+  value_field_schema?: Field;
 }
 
 export interface Field {
@@ -26,12 +32,13 @@ export interface Field {
     properties: Field[];
   };
   prompt_config?: {
-    target_field: string;
     button_label_key: string;
     modal_title_key: string;
+    target_field: string;
   };
   button?: { key: string; en_label: string; zh_label: string };
   key_label_en?: string;
+  key_label_zh?: string;
   value_type?: string;
 
   // for group-like fields
@@ -43,6 +50,7 @@ export interface Field {
     en_unit: string;
     zh_unit: string;
   };
+  value_field_schema?: Field;
 }
 
 export interface Group {
@@ -81,21 +89,6 @@ export interface Education {
   current: boolean;
 }
 
-export interface CustomQuestion {
-  question: string;
-  answer: string;
-}
-
-export interface Language {
-  name: string;
-  proficiency: string;
-}
-
-export interface Experience {
-  name: string;
-  years: number;
-}
-
 
 export interface ExperienceLevel {
   internship: boolean;
@@ -121,14 +114,14 @@ export interface DatePosted {
   month: boolean;
   week: boolean;
   '24_hours': boolean;
-  custom_hours: boolean;
+  custom_hours?: boolean;
 }
 
-export interface Uploads {
-  resume: string;
-  coverLetter: string;
-  photo: string;
-}
+// export interface Uploads {
+//   resume: string;
+//   coverLetter: string;
+//   photo: string;
+// }
 
 export interface Checkboxes {
   driversLicence: boolean;
@@ -176,10 +169,10 @@ export interface AppConfig {
   remote: boolean;
   residentStatus: boolean;
   newestPostingsFirst: boolean;
-  lessApplicantsEnabled?: boolean;
-  lessApplicantsCount?: number;
-  experienceLevel: { [key: string]: boolean };
-  jobTypes: { [key: string]: boolean };
+  lessApplicantsEnabled: boolean;
+  lessApplicantsCount: number;
+  experienceLevel: Record<string, boolean>;
+  jobTypes: Record<string, boolean>;
   date: DatePosted | string;
   positionsWithCount: { name: string; count: number }[];
   locations: string[];
@@ -188,23 +181,23 @@ export interface AppConfig {
   companyBlacklist: string[];
   titleBlacklist: string[];
   posterBlacklist: string[];
-  uploads: Uploads;
+  // uploads: Uploads;
   checkboxes: Checkboxes;
   universityGpa: number;
   salaryMinimum: number;
-  languages: Language[];
+  languages: Record<string, string>;
   noticePeriod: number;
-  experience: Experience[];
+  experience: Record<string, number>;
   personalInfo: PersonalInfo;
   eeo: EEO;
-  textResume: string;
+  // textResume: string;
   evaluateJobFit: boolean;
   jobFitPrompt: string;
   debug: boolean;
-  customQuestions: CustomQuestion[];
+  customQuestions: Record<string, string>;
   useCloudAI: boolean;
   educations: Education[];
   workExperiences: WorkExperience[];
-  speed_mode: string | null;
+  speed_mode: 'slow' | 'fast';
   customHours?: number;
 } 

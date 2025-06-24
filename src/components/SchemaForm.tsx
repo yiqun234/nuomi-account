@@ -27,9 +27,12 @@ const SchemaForm: React.FC<SchemaFormProps> = ({ group, form, t, namePrefix = []
                 [
                   'textarea',
                   'card_list',
+                  'managed_key_value_list',
+                  'simple_key_value_list',
                   'checkbox_group',
                   'group',
                   'checkbox',
+                  'radio_group',
                   'radio_group_inline',
                   'checkbox_button',
                   'checkbox_prompt',

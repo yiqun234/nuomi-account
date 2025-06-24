@@ -9,6 +9,8 @@ import { defaultConfig } from '../config/config.default';
 import { useWatch } from 'antd/es/form/Form';
 import SchemaForm from './SchemaForm';
 import DataTypeAwareCheckboxGroup from './DataTypeAwareCheckboxGroup';
+import ManagedKeyValueList from './ManagedKeyValueList';
+import SimpleKeyValueManager from './SimpleKeyValueManager';
 
 const { TextArea } = Input;
 
@@ -178,7 +180,13 @@ const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (
     case 'select':
       return (
         <Form.Item label={label} name={namePath}>
-          <Select>
+          <Select
+            showSearch
+            optionFilterProp="children"
+            filterOption={(input, option) =>
+              (option?.children as unknown as string ?? '').toLowerCase().includes(input.toLowerCase())
+            }
+          >
             {field.options!.map((opt: FieldOption) => (
               <Select.Option key={opt.key} value={opt.value !== undefined ? opt.value : opt.key}>
                 {String(t(`${field.key}_${opt.key}`, opt.en_label))}
@@ -216,6 +224,7 @@ const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (
           </Form.Item>
         );
     }
+
     case 'radio_group_inline':
         return (
             <Form.Item label={label} name={namePath}>
@@ -282,6 +291,31 @@ const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (
             </Form.List>
           </>
         );
+
+    case 'managed_key_value_list':
+        return (
+            <Form.Item name={namePath} noStyle>
+                 <ManagedKeyValueList
+                    label={label}
+                    t={t}
+                    valueFieldSchema={field.value_field_schema!}
+                    keyFieldLabel={t(`${field.key}_key_label`, field.key_label_en || '')}
+                    valueFieldLabel={t(`${field.key}_${field.value_field_schema!.key}_label`, field.value_field_schema!.en_label || '')}
+                />
+            </Form.Item>
+        );
+    case 'simple_key_value_list':
+        return (
+            <Form.Item name={namePath} noStyle>
+                <SimpleKeyValueManager
+                    label={label}
+                    t={t}
+                    valueFieldSchema={field.value_field_schema!}
+                    keyFieldLabel={t(`${field.key}_key_label`, field.key_label_en || '')}
+                    valueFieldLabel={t(`${field.key}_${field.value_field_schema!.key}_label`, field.value_field_schema!.en_label || '')}
+                />
+            </Form.Item>
+        );
     case 'card_list':
         return (
             <Form.Item name={namePath} noStyle>
@@ -293,24 +327,6 @@ const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (
                 />
             </Form.Item>
         );
-    case 'text_input_browse':
-      return (
-        <Form.Item
-          label={label}
-          help={field.description_en ? t(`${field.key}_description`, field.description_en) : undefined}
-        >
-          <Space.Compact style={{ width: '100%' }}>
-            <Form.Item name={namePath} noStyle>
-                <Input />
-            </Form.Item>
-            {field.buttons!.map((button: {key: string, en_label: string}) => (
-              <Button key={button.key}>
-                {String(t(`${field.key}_${button.key}_button`, button.en_label))}
-              </Button>
-            ))}
-          </Space.Compact>
-        </Form.Item>
-      );
     case 'text_input_readonly':
         return (
          <Form.Item label={label} name={namePath}>

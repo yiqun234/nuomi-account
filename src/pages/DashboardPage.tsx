@@ -21,6 +21,9 @@ import {
   CodeOutlined,
   IdcardOutlined,
   UploadOutlined,
+  QuestionCircleOutlined,
+  LogoutOutlined,
+  HomeOutlined,
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import yaml from 'js-yaml'
@@ -34,7 +37,7 @@ import LanguageSwitcher from '../components/LanguageSwitcher'
 import type { Group, AppConfig, DatePosted } from '../types'
 
 const { Header, Sider, Content } = Layout
-const { Title } = Typography
+const { Title, Link } = Typography
 
 const isObject = (item: unknown): item is Record<string, unknown> => {
   return item !== null && typeof item === 'object' && !Array.isArray(item);
@@ -81,7 +84,7 @@ const removeUndefinedDeep = <T extends unknown>(obj: T): T => {
 };
 
 const DashboardPage: React.FC = () => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { user, logout } = useAuth()
   const [form] = Form.useForm<AppConfig>()
   const [loading, setLoading] = useState(true)
@@ -273,6 +276,7 @@ const DashboardPage: React.FC = () => {
   const userMenuItems = [
     {
       key: 'logout',
+      icon: <LogoutOutlined />,
       label: t('logout', 'Logout'),
     },
   ]
@@ -309,6 +313,18 @@ const DashboardPage: React.FC = () => {
           {t('title', 'Configuration Panel')}
         </Title>
         <Space>
+          <Link href="https://www.nuomi.ai" target="_blank" rel="noopener noreferrer">
+            <Space>
+              <HomeOutlined />
+              {t('homepage', 'Homepage')}
+            </Space>
+          </Link>
+          <Link href={`https://www.nuomi.ai/instructions.html?lang=${i18n.language.startsWith('zh') ? 'zh' : 'en'}`} target="_blank" rel="noopener noreferrer">
+            <Space>
+              <QuestionCircleOutlined />
+              {t('user_manual', 'User Manual')}
+            </Space>
+          </Link>
           <LanguageSwitcher />
           {user && (
             <Dropdown menu={{ items: userMenuItems, onClick: handleMenuClick }}>

@@ -1,6 +1,8 @@
 {
     "title": "配置面板",
     "logout": "登出",
+    "user_manual": "用户手册",
+    "homepage": "官网首页",
     "Reset": "重置",
     "Save": "保存",
     "Saving": "保存中...",
@@ -287,9 +289,11 @@
     "title": "应用授权",
     "processing": "正在处理授权，请稍候...",
     "success_title": "授权成功！",
-    "success_subtitle": "您现在可以关闭此窗口并返回应用程序。",
+    "success_subtitle": "您现在可以返回您的应用程序。",
+    "redirect_countdown": "将在 {{count}} 秒后跳转至用户中心...",
     "error_title": "授权失败",
     "error_callback_not_found": "授权失败：未找到回调URL。",
-    "error_unknown": "授权过程中发生未知错误。"
+    "error_unknown": "授权过程中发生未知错误。",
+    "error_not_logged_in": "您必须登录才能授权该应用。"
   }
 }

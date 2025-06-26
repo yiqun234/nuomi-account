@@ -3,6 +3,8 @@
     "login_title": "Login to Your Account",
     "login_button": "Login",
     "logout": "Logout",
+    "user_manual": "User Manual",
+    "homepage": "Homepage",
     "save": "Save",
     "reset": "Reset",
     "save_success": "Configuration saved successfully!",
@@ -288,12 +290,14 @@
       }
     },
     "authorize": {
-      "title": "Authorizing Application",
+      "title": "Application Authorization",
       "processing": "Processing authorization, please wait...",
       "success_title": "Authorization Successful!",
-      "success_subtitle": "You can now close this window and return to the application.",
+      "success_subtitle": "You can now return to your application.",
+      "redirect_countdown": "Redirecting to your dashboard in {{count}} seconds...",
       "error_title": "Authorization Failed",
-      "error_callback_not_found": "Authorization failed: The callback URL was not found.",
-      "error_unknown": "An unknown error occurred during authorization."
+      "error_callback_not_found": "Authorization failed: Callback URL not found.",
+      "error_unknown": "An unknown error occurred during authorization.",
+      "error_not_logged_in": "You must be logged in to authorize the application."
     }
 }

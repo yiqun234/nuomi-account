@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Card, Typography, Spin, Flex, Result } from 'antd'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../store/auth'
 import { getOrCreateApiKey } from '../services/apiKey'
 import type { User } from 'firebase/auth'
@@ -13,32 +14,27 @@ type AuthStatus = 'processing' | 'success' | 'error'
 const AuthorizePage = () => {
   const { t } = useTranslation()
   const { user } = useAuthStore()
+  const navigate = useNavigate()
   const [status, setStatus] = useState<AuthStatus>('processing')
   const [error, setError] = useState<string>('')
-  const hasProcessed = useRef(false) // This is our one-time lock.
+  const [countdown, setCountdown] = useState(5)
+  const hasProcessed = useRef(false)
 
   useEffect(() => {
-    // We add the hasProcessed.current check to ensure this logic runs only once.
     if (!user || hasProcessed.current) {
       return
     }
-
-    // Lock it immediately.
     hasProcessed.current = true
-
     const callbackUrl = sessionStorage.getItem('authCallback')
-
     const processAuthorization = async (loggedInUser: User) => {
       if (!callbackUrl) {
         setError(t('authorize.error_callback_not_found'))
         setStatus('error')
         return
       }
-
       try {
         const apiKey = await getOrCreateApiKey(loggedInUser.uid)
         const idToken = await loggedInUser.getIdToken()
-
         await fetch(callbackUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -53,16 +49,30 @@ const AuthorizePage = () => {
         const error = err as Error
         console.error('Authorization process failed:', error)
         setError(error.message || t('authorize.error_unknown'))
-        console.log(1111111)
         setStatus('error')
       } finally {
-        // Clean up the session storage regardless of the outcome.
         sessionStorage.removeItem('authCallback')
       }
     }
-
     processAuthorization(user)
   }, [user, t])
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setInterval>;
+    if (status === 'success') {
+      timer = setInterval(() => {
+        setCountdown(prevCountdown => {
+          if (prevCountdown <= 1) {
+            clearInterval(timer);
+            navigate('/dashboard');
+            return 0;
+          }
+          return prevCountdown - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [status, navigate]);
 
   const renderContent = () => {
     switch (status) {
@@ -78,7 +88,12 @@ const AuthorizePage = () => {
           <Result
             status="success"
             title={t('authorize.success_title')}
-            subTitle={t('authorize.success_subtitle')}
+            subTitle={
+              <>
+                <div>{t('authorize.success_subtitle')}</div>
+                <div>{t('authorize.redirect_countdown', { count: countdown })}</div>
+              </>
+            }
           />
         )
       case 'error':

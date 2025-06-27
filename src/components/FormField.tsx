@@ -3,6 +3,7 @@ import { Form, Input, Checkbox, Select, InputNumber, Row, Col, Space, Button, Di
 import type { FormInstance } from 'antd';
 import { MinusCircleOutlined, PlusOutlined, ExclamationCircleFilled } from '@ant-design/icons';
 import type { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import ListManager from './ListManager';
 import type { Field, FieldOption } from '../types';
 import { defaultConfig } from '../config/config.default';
@@ -89,6 +90,7 @@ const CheckboxWithPromptModal: React.FC<{ field: Field; t: TFunction; form: Form
 };
 
 const CheckboxWithInlineInput: React.FC<{field: Field; t: TFunction, form: FormInstance, namePath: (string|number)[]}> = ({ field, t, form, namePath }) => {
+    const { i18n } = useTranslation();
     const isChecked = useWatch(namePath, form);
     const inlineInputKey = field.inline_input!.key;
     
@@ -96,7 +98,7 @@ const CheckboxWithInlineInput: React.FC<{field: Field; t: TFunction, form: FormI
     const inputNamePath = [...namePath.slice(0, namePath.length - 1), inlineInputKey];
 
     const label = t(field.key, field.en_label);
-    const unitLabel = t(`${field.key}_${inlineInputKey}_unit`, field.inline_input!.zh_unit);
+    const unitLabel = t(`${field.key}_${inlineInputKey}_unit`, i18n.language.startsWith('zh') ? field.inline_input!.zh_unit : field.inline_input!.en_unit);
 
     return (
         <Form.Item label=" " colon={false}>
@@ -114,6 +116,7 @@ const CheckboxWithInlineInput: React.FC<{field: Field; t: TFunction, form: FormI
 };
 
 const RadioGroupWithInlineInput: React.FC<{field: Field; t: TFunction, form: FormInstance}> = ({ field, t, form }) => {
+    const { i18n } = useTranslation();
     const label = t(field.key, field.en_label);
     const radioValue = useWatch(field.key, form);
 
@@ -125,11 +128,11 @@ const RadioGroupWithInlineInput: React.FC<{field: Field; t: TFunction, form: For
                         return (
                             <Radio key={option.key} value={option.key}>
                                 <Space>
-                                    {t(`${field.key}_${option.key}`, option.zh_label)}
+                                    {t(`${field.key}_${option.key}`, i18n.language.startsWith('zh') ? option.zh_label : option.en_label)}
                                     <Form.Item name={option.inline_input.key} noStyle>
                                         <InputNumber min={1} disabled={radioValue !== option.key} />
                                     </Form.Item>
-                                    {t(`${field.key}_${option.inline_input.key}_unit`, option.inline_input.zh_unit)}
+                                    {t(`${field.key}_${option.inline_input.key}_unit`, i18n.language.startsWith('zh') ? option.inline_input!.zh_unit : option.inline_input!.en_unit)}
                                 </Space>
                             </Radio>
                         );

@@ -19,7 +19,7 @@ const { TextArea } = Input;
 const LabelWithIndicator: React.FC<{ label: string; show: boolean; t: TFunction }> = ({ label, show, t }) => (
     <Space>
       {label}
-      {show && <Tooltip title={t('ai_did_not_fill', 'AI did not fill this field')}><ExclamationCircleFilled style={{ color: '#faad14' }} /></Tooltip>}
+      {show && <Tooltip title={t('ai_did_not_fill', 'AI did not recognize this field')}><ExclamationCircleFilled style={{ color: '#faad14' }} /></Tooltip>}
     </Space>
 );
 

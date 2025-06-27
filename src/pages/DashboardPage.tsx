@@ -92,6 +92,8 @@ const DashboardPage: React.FC = () => {
   const [selectedKey, setSelectedKey] = useState(configSchema.groups[0].key)
   const [initialValues, setInitialValues] = useState<AppConfig | null>(null);
   const [apiKey, setApiKey] = useState<string | null>(null);
+  const [aiRunCompleted, setAiRunCompleted] = useState(false);
+  const [aiMissedFields, setAiMissedFields] = useState<Set<string>>(new Set());
   const [messageApi, contextHolder] = message.useMessage();
   const importFileRef = useRef<HTMLInputElement>(null);
 
@@ -195,6 +197,12 @@ const DashboardPage: React.FC = () => {
       setSaving(false)
     }
   }
+
+  const handleAiImportAndSave = async (missedFields: Set<string>) => {
+    await handleSave();
+    setAiRunCompleted(true);
+    setAiMissedFields(missedFields);
+  };
 
   const handleReset = () => {
     loadData()
@@ -375,7 +383,9 @@ const DashboardPage: React.FC = () => {
                     t={t} 
                     user={user} 
                     apiKey={apiKey}
-                    onSave={handleSave} 
+                    onSave={handleAiImportAndSave} 
+                    aiRunCompleted={aiRunCompleted}
+                    aiMissedFields={aiMissedFields}
                   />
                 )}
               </Form>

@@ -21,6 +21,7 @@
     "developer_options": "Developer Options",
     "email": "LinkedIn Email",
     "password": "LinkedIn Password",
+    "ai_did_not_fill": "AI did not recognize this field",
     "openaiApiKey": "OpenAI API Key",
     "disableAntiLock": "Disable windows sleep mode",
     "remote": "Remote",

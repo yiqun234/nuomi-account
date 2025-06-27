@@ -13,10 +13,12 @@ interface SchemaFormProps {
   namePrefix?: (string | number)[];
   user: User | null;
   apiKey: string | null;
-  onSave?: () => Promise<void>;
+  onSave?: (missedFields: Set<string>) => Promise<void>;
+  aiRunCompleted?: boolean;
+  aiMissedFields?: Set<string>;
 }
 
-const SchemaForm: React.FC<SchemaFormProps> = ({ group, form, t, namePrefix = [], user, apiKey, onSave }) => {
+const SchemaForm: React.FC<SchemaFormProps> = ({ group, form, t, namePrefix = [], user, apiKey, onSave, aiRunCompleted, aiMissedFields }) => {
   return (
     <>
       <Typography.Title level={4}>{t(group.key, group.group_name_en)}</Typography.Title>
@@ -46,7 +48,7 @@ const SchemaForm: React.FC<SchemaFormProps> = ({ group, form, t, namePrefix = []
                   : 12
               }
             >
-              <FormField field={field} t={t} form={form} namePath={currentNamePath} user={user} apiKey={apiKey} onSave={onSave} />
+              <FormField field={field} t={t} form={form} namePath={currentNamePath} user={user} apiKey={apiKey} onSave={onSave} aiRunCompleted={aiRunCompleted} aiMissedFields={aiMissedFields} />
             </Col>
           );
         })}

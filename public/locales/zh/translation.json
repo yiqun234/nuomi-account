@@ -24,6 +24,7 @@
     "email": "领英邮箱:",
     "password": "领英密码:",
     "uploads.resume": "简历文件路径:",
+    "ai_did_not_fill": "AI未识别到此字段",
     "uploads.resume_description": "仅支持PDF格式(最大2MB)",
     "uploads.resume_browse_button": "浏览",
     "uploads.resume_extract_button": "AI提取简历文本",

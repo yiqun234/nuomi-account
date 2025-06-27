@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Form, Input, Checkbox, Select, InputNumber, Row, Col, Space, Button, Divider, Radio, Modal } from 'antd';
+import { Form, Input, Checkbox, Select, InputNumber, Row, Col, Space, Button, Divider, Radio, Modal, Tooltip } from 'antd';
 import type { FormInstance } from 'antd';
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { MinusCircleOutlined, PlusOutlined, ExclamationCircleFilled } from '@ant-design/icons';
 import type { TFunction } from 'i18next';
 import ListManager from './ListManager';
 import type { Field, FieldOption } from '../types';
@@ -15,6 +15,13 @@ import ResumeImporter from './ResumeImporter';
 import type { User } from 'firebase/auth';
 
 const { TextArea } = Input;
+
+const LabelWithIndicator: React.FC<{ label: string; show: boolean; t: TFunction }> = ({ label, show, t }) => (
+    <Space>
+      {label}
+      {show && <Tooltip title={t('ai_did_not_fill', 'AI did not fill this field')}><ExclamationCircleFilled style={{ color: '#faad14' }} /></Tooltip>}
+    </Space>
+);
 
 const CheckboxWithPromptModal: React.FC<{ field: Field; t: TFunction; form: FormInstance }> = ({ field, t, form }) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -138,38 +145,51 @@ const RadioGroupWithInlineInput: React.FC<{field: Field; t: TFunction, form: For
     );
 };
 
-const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (string | number)[], user: User | null, apiKey: string | null, onSave?: () => Promise<void>) => {
+const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (string | number)[], user: User | null, apiKey: string | null, onSave?: (missedFields: Set<string>) => Promise<void>, aiRunCompleted?: boolean, aiMissedFields?: Set<string>) => {
   const label = t(field.key, field.en_label);
+  console.log(namePath)
+  console.log(aiMissedFields)
+  const showIndicator = !!aiMissedFields?.has(namePath.join('.'));
 
   switch (field.ui_hint) {
     case 'hidden':
         return null;
     case 'group':
-        return <SchemaForm group={{
-            key: field.key,
-            group_name_en: field.group_name_en!,
-            group_name_zh: field.group_name_zh!,
-            fields: field.fields!
-        }} t={t} form={form} namePrefix={namePath} user={user} apiKey={apiKey} />
+        return <SchemaForm 
+            group={{
+                key: field.key,
+                group_name_en: field.group_name_en!,
+                group_name_zh: field.group_name_zh!,
+                fields: field.fields!
+            }} 
+            t={t} 
+            form={form} 
+            namePrefix={namePath} 
+            user={user} 
+            apiKey={apiKey}
+            onSave={onSave}
+            aiRunCompleted={aiRunCompleted}
+            aiMissedFields={aiMissedFields}
+        />
     case 'checkbox_prompt':
         return <CheckboxWithPromptModal field={field} t={t} form={form} />;
     case 'checkbox_with_inline_input':
         return <CheckboxWithInlineInput field={field} t={t} form={form} namePath={namePath} />;
     case 'text_input':
       return (
-        <Form.Item label={label} name={namePath}>
+        <Form.Item label={<LabelWithIndicator label={label} show={showIndicator} t={t} />} name={namePath}>
           <Input />
         </Form.Item>
       );
     case 'password_input':
       return (
-        <Form.Item label={label} name={namePath}>
+        <Form.Item label={<LabelWithIndicator label={label} show={showIndicator} t={t} />} name={namePath}>
           <Input.Password />
         </Form.Item>
       );
     case 'number_input':
        return (
-        <Form.Item label={label} name={namePath}>
+        <Form.Item label={<LabelWithIndicator label={label} show={showIndicator} t={t} />} name={namePath}>
           <InputNumber style={{ width: '100%' }} />
         </Form.Item>
       );
@@ -181,7 +201,7 @@ const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (
       );
     case 'select':
       return (
-        <Form.Item label={label} name={namePath}>
+        <Form.Item label={<LabelWithIndicator label={label} show={showIndicator} t={t} />} name={namePath}>
           <Select
             showSearch
             optionFilterProp="children"
@@ -203,7 +223,7 @@ const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (
         if (field.type === 'array') {
             return (
                 <Form.Item
-                    label={label}
+                    label={<LabelWithIndicator label={label} show={showIndicator} t={t} />}
                     name={namePath}
                     getValueFromEvent={(e: React.ChangeEvent<HTMLTextAreaElement>) => 
                         e.target.value.split('\n')
@@ -218,14 +238,14 @@ const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (
         }
 
        return (
-        <Form.Item label={label} name={namePath}>
+        <Form.Item label={<LabelWithIndicator label={label} show={showIndicator} t={t} />} name={namePath}>
           <TextArea rows={4} placeholder={placeholder} />
         </Form.Item>
       );
     }
     case 'checkbox_group':
       return (
-        <Form.Item label={label} name={namePath}>
+        <Form.Item label={<LabelWithIndicator label={label} show={showIndicator} t={t} />} name={namePath}>
           <DataTypeAwareCheckboxGroup field={field} t={t} />
         </Form.Item>
       );
@@ -235,7 +255,7 @@ const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (
             return <RadioGroupWithInlineInput field={field} t={t} form={form} />;
         }
         return (
-          <Form.Item label={label} name={namePath}>
+          <Form.Item label={<LabelWithIndicator label={label} show={showIndicator} t={t} />} name={namePath}>
             <Radio.Group>
               {field.options!.map((option: FieldOption) => (
                 <Radio key={option.key} value={option.key}>
@@ -249,7 +269,7 @@ const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (
 
     case 'radio_group_inline':
         return (
-            <Form.Item label={label} name={namePath}>
+            <Form.Item label={<LabelWithIndicator label={label} show={showIndicator} t={t} />} name={namePath}>
                 <Radio.Group>
                 {field.options!.map((option: FieldOption) => (
                     <Radio key={option.key} value={option.key}>
@@ -262,7 +282,7 @@ const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (
     case 'tag_list':
       return (
         <Form.Item
-          label={label}
+          label={<LabelWithIndicator label={label} show={showIndicator} t={t} />}
           name={namePath}
           getValueFromEvent={(e: React.ChangeEvent<HTMLTextAreaElement>) => e.target.value.split('\n').map((s: string) => s.trim()).filter(Boolean)}
           getValueProps={(value: string[]) => ({ value: Array.isArray(value) ? value.join('\n') : '' })}
@@ -408,8 +428,8 @@ const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (
   }
 };
 
-const FormField = ({ field, t, form, namePath, user, apiKey, onSave }: { field: Field; t: TFunction; form: FormInstance, namePath: (string|number)[], user: User | null, apiKey: string | null, onSave?: () => Promise<void> }) => {
-  return renderField(field, t, form, namePath, user, apiKey, onSave);
+const FormField = ({ field, t, form, namePath, user, apiKey, onSave, aiRunCompleted, aiMissedFields }: { field: Field; t: TFunction; form: FormInstance, namePath: (string|number)[], user: User | null, apiKey: string | null, onSave?: (missedFields: Set<string>) => Promise<void>, aiRunCompleted?: boolean, aiMissedFields?: Set<string> }) => {
+  return renderField(field, t, form, namePath, user, apiKey, onSave, aiRunCompleted, aiMissedFields);
 };
 
 export default FormField; 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button, Modal, Checkbox, Spin, message, Row, Col, Upload, Steps, Typography } from 'antd';
 import type { UploadFile, UploadProps } from 'antd';
 import type { UploadChangeParam } from 'antd/es/upload';
@@ -19,7 +19,7 @@ interface ResumeImporterProps {
   form: FormInstance;
   user: User | null;
   apiKey: string | null;
-  onSave?: () => Promise<void>;
+  onSave?: (missedFields: Set<string>) => Promise<void>;
 }
 
 interface OcrApiResponse {
@@ -41,6 +41,10 @@ interface AiPersonalInfo {
   city?: string;
   zip?: string;
   address1?: string;
+  state?: string;
+  linkedin?: string;
+  website?: string;
+  pronouns?: string;
 }
 
 interface AiWorkExperience {
@@ -112,12 +116,13 @@ const findSchemaField = (path: string, fields: Field[] = configSchema.groups.fla
 };
 
 const buildAiPayload = (resumeText: string, selectedOptions: string[]) => {
-  const structure = {
+  const fullStructure = {
     languages: [{ language: "", level: "", confidence: 0 }],
     skills: [{ skill: "", years: 0, confidence: 0 }],
     personal_info: {
       firstName: "", lastName: "", email: "", phone: "", address1: "",
       address2: "", city: "", state: "", zip: "", country: "",
+      linkedin: "", website: "",
       country_code: "", confidence: 0
     },
     eeo: { gender: "", race: "", veteran: "", disability: "", confidence: 0 },
@@ -141,7 +146,7 @@ const buildAiPayload = (resumeText: string, selectedOptions: string[]) => {
   const getMonthNames = () => findSchemaField('workExperiences.item_schema.from_month')?.options?.map(o => o.en_label) || [];
   const getYears = () => Array.from({ length: 55 }, (_, i) => (new Date().getFullYear() + 5 - i).toString());
 
-  const metadata = {
+  const fullMetadata = {
     languages: {
       label: "Language Proficiency",
       options: getOptionsValues('languages.value_field_schema.proficiency', 'value')
@@ -210,12 +215,46 @@ const buildAiPayload = (resumeText: string, selectedOptions: string[]) => {
     }
   };
 
+  const structure: Record<string, unknown> = {};
+  const metadata: Record<string, unknown> = {};
+
+  selectedOptions.forEach(option => {
+    if (option in fullStructure) {
+        structure[option] = fullStructure[option as keyof typeof fullStructure];
+    }
+    if (option in fullMetadata) {
+        metadata[option] = fullMetadata[option as keyof typeof fullMetadata];
+    }
+  });
+
   return {
     resumeText,
     options: selectedOptions,
     structure,
     metadata
   };
+};
+
+const aiKeyToPathMap: Record<string, Record<string, string>> = {
+  personal_info: {
+    firstName: 'personalInfo.First Name',
+    lastName: 'personalInfo.Last Name',
+    linkedin: 'personalInfo.Linkedin',
+    website: 'personalInfo.Website',
+    pronouns: 'personalInfo.Pronouns',
+    country_code: 'personalInfo.Phone Country Code',
+    phone: 'personalInfo.Mobile Phone Number',
+    address1: 'personalInfo.Street address',
+    city: 'personalInfo.City',
+    state: 'personalInfo.State',
+    zip: 'personalInfo.Zip',
+  },
+  eeo: {
+    gender: 'eeo.gender',
+    race: 'eeo.race',
+    veteran: 'eeo.veteran',
+    disability: 'eeo.disability'
+  }
 };
 
 const ResumeImporter: React.FC<ResumeImporterProps> = ({ field, t, form, apiKey, user, onSave }) => {
@@ -227,6 +266,8 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ field, t, form, apiKey,
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [finalResultMessage, setFinalResultMessage] = useState<React.ReactNode>(null);
+  const missedFieldsRef = useRef(new Set<string>());
+
 
   const showModal = () => {
     // Reset state when modal is opened
@@ -242,8 +283,9 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ field, t, form, apiKey,
     if (selectedOptions.length === 0) return message.warning(t('resume_importer.no_options_selected', 'Please select at least one option to extract.'));
     
     setLoading(true);
-    setLoadingStep(t('resume_importer.parsing_resume', 'AI is parsing your resume...'));
-    
+    setLoadingStep(t('resume_importer.parsing_resume', 'Parsing resume...'));
+
+    missedFieldsRef.current.clear(); // Reset for each run
     try {
       if (!AI_SERVER_URL) {
         throw new Error(t('resume_importer.error_ai_url', "AI Server URL is not configured."));
@@ -268,6 +310,25 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ field, t, form, apiKey,
       }
       
       const result: AiApiResponse = await response.json();
+
+      selectedOptions.forEach(optionKey => {
+        const keyMap = aiKeyToPathMap[optionKey];
+        if (keyMap) {
+          const resultPortion = result[optionKey as keyof AiApiResponse] as Record<string, unknown> | undefined;
+          if (resultPortion) {
+            for (const aiKey in keyMap) {
+              if (!resultPortion[aiKey]) {
+                missedFieldsRef.current.add(keyMap[aiKey]);
+              }
+            }
+          } else {
+            // The whole section is missing, mark all fields in it as missed
+            Object.values(keyMap).forEach(path => missedFieldsRef.current.add(path));
+          }
+        } else if (optionKey === 'salary' && (!result.salary || result.salary.amount === 0)) {
+            missedFieldsRef.current.add('salaryMinimum');
+        }
+      });
       
       const valuesToSet: Record<string, unknown> = {};
       const updateMessages: string[] = [];
@@ -301,11 +362,28 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ field, t, form, apiKey,
         const piValuesToSet: Record<string, string> = {};
         if (pi.firstName) piValuesToSet['First Name'] = pi.firstName;
         if (pi.lastName) piValuesToSet['Last Name'] = pi.lastName;
-        if (pi.country_code) piValuesToSet['Phone Country Code'] = pi.country_code;
+        
+        if (pi.country_code) {
+          const countryOption = countryCodeOptions.find(opt => opt.en_label === pi.country_code);
+          if (countryOption) {
+            piValuesToSet['Phone Country Code'] = countryOption.key;
+          } else {
+            // Fallback for cases where AI might return just the code e.g. "+1"
+            const fallbackOption = countryCodeOptions.find(opt => opt.key === pi.country_code);
+            if(fallbackOption) {
+                piValuesToSet['Phone Country Code'] = fallbackOption.key;
+            }
+          }
+        }
+        
         if (pi.phone) piValuesToSet['Mobile Phone Number'] = pi.phone;
         if (pi.city) piValuesToSet['City'] = pi.city;
         if (pi.zip) piValuesToSet['Zip'] = pi.zip;
         if (pi.address1) piValuesToSet['Street address'] = pi.address1;
+        if (pi.state) piValuesToSet['State'] = pi.state;
+        if (pi.linkedin) piValuesToSet['Linkedin'] = pi.linkedin;
+        if (pi.website) piValuesToSet['Website'] = pi.website;
+        if (pi.pronouns) piValuesToSet['Pronouns'] = pi.pronouns;
         
         if(Object.keys(piValuesToSet).length > 0) {
           valuesToSet.personalInfo = piValuesToSet;
@@ -403,12 +481,8 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ field, t, form, apiKey,
   const handleFinalOk = async () => {
     setIsModalVisible(false);
     if (onSave) {
-      try {
-        await onSave();
-      } catch (error) {
-        console.log(error)
-        message.error(t('auto_save_failed', 'Auto-save failed, please save manually.'));
-      }
+      console.log(missedFieldsRef.current)
+      await onSave(missedFieldsRef.current);
     }
   };
 

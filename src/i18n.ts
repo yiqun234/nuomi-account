@@ -2,6 +2,7 @@ import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 import Backend from 'i18next-http-backend'
+import packageJson from '../package.json';
 
 i18n
   // loads translations from your server
@@ -20,6 +21,7 @@ i18n
     backend: {
       // path to translation files
       loadPath: '/locales/{{lng}}/translation.json',
+      queryStringParams: { v: packageJson.version }
     },
     detection: {
       // order and from where user language should be detected

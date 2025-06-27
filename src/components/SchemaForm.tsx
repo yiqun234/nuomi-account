@@ -13,9 +13,10 @@ interface SchemaFormProps {
   namePrefix?: (string | number)[];
   user: User | null;
   apiKey: string | null;
+  onSave?: () => Promise<void>;
 }
 
-const SchemaForm: React.FC<SchemaFormProps> = ({ group, form, t, namePrefix = [], user, apiKey }) => {
+const SchemaForm: React.FC<SchemaFormProps> = ({ group, form, t, namePrefix = [], user, apiKey, onSave }) => {
   return (
     <>
       <Typography.Title level={4}>{t(group.key, group.group_name_en)}</Typography.Title>
@@ -45,7 +46,7 @@ const SchemaForm: React.FC<SchemaFormProps> = ({ group, form, t, namePrefix = []
                   : 12
               }
             >
-              <FormField field={field} t={t} form={form} namePath={currentNamePath} user={user} apiKey={apiKey} />
+              <FormField field={field} t={t} form={form} namePath={currentNamePath} user={user} apiKey={apiKey} onSave={onSave} />
             </Col>
           );
         })}

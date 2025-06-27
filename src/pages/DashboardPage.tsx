@@ -368,7 +368,16 @@ const DashboardPage: React.FC = () => {
                 form={form}
                 layout="vertical"
               >
-                {selectedGroup && <SchemaForm group={selectedGroup} form={form} t={t} user={user} apiKey={apiKey} />}
+                {selectedGroup && (
+                  <SchemaForm 
+                    group={selectedGroup} 
+                    form={form} 
+                    t={t} 
+                    user={user} 
+                    apiKey={apiKey}
+                    onSave={handleSave} 
+                  />
+                )}
               </Form>
             )}
           </Content>

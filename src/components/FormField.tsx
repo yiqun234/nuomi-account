@@ -138,7 +138,7 @@ const RadioGroupWithInlineInput: React.FC<{field: Field; t: TFunction, form: For
     );
 };
 
-const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (string | number)[], user: User | null, apiKey: string | null) => {
+const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (string | number)[], user: User | null, apiKey: string | null, onSave?: () => Promise<void>) => {
   const label = t(field.key, field.en_label);
 
   switch (field.ui_hint) {
@@ -197,12 +197,32 @@ const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (
           </Select>
         </Form.Item>
       );
-    case 'textarea':
+    case 'textarea': {
+        const placeholder = t(`${field.key}.placeholder`, field.description_en || '');
+
+        if (field.type === 'array') {
+            return (
+                <Form.Item
+                    label={label}
+                    name={namePath}
+                    getValueFromEvent={(e: React.ChangeEvent<HTMLTextAreaElement>) => 
+                        e.target.value.split('\n')
+                    }
+                    getValueProps={(value: string[]) => ({ 
+                        value: Array.isArray(value) ? value.join('\n') : '' 
+                    })}
+                >
+                    <TextArea rows={4} placeholder={placeholder} />
+                </Form.Item>
+            );
+        }
+
        return (
         <Form.Item label={label} name={namePath}>
-          <TextArea rows={4} />
+          <TextArea rows={4} placeholder={placeholder} />
         </Form.Item>
       );
+    }
     case 'checkbox_group':
       return (
         <Form.Item label={label} name={namePath}>
@@ -322,6 +342,7 @@ const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (
                     valueFieldSchema={field.value_field_schema!}
                     keyFieldLabel={t(`${field.key}_key_label`, field.key_label_en || '')}
                     valueFieldLabel={t(`${field.key}_${field.value_field_schema!.key}_label`, field.value_field_schema!.en_label || '')}
+                    description={t(`${field.key}.description`, (field.description_zh || field.description_en) || '')}
                 />
             </Form.Item>
         );
@@ -373,15 +394,22 @@ const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (
         )
     case 'ai_importer':
         return (
-            <ResumeImporter field={field} t={t} form={form} user={user} apiKey={apiKey} />
+            <ResumeImporter 
+                field={field} 
+                t={t} 
+                form={form} 
+                user={user} 
+                apiKey={apiKey} 
+                onSave={onSave}
+            />
         )
     default:
       return null;
   }
 };
 
-const FormField = ({ field, t, form, namePath, user, apiKey }: { field: Field; t: TFunction; form: FormInstance, namePath: (string|number)[], user: User | null, apiKey: string | null }) => {
-  return renderField(field, t, form, namePath, user, apiKey);
+const FormField = ({ field, t, form, namePath, user, apiKey, onSave }: { field: Field; t: TFunction; form: FormInstance, namePath: (string|number)[], user: User | null, apiKey: string | null, onSave?: () => Promise<void> }) => {
+  return renderField(field, t, form, namePath, user, apiKey, onSave);
 };
 
 export default FormField; 

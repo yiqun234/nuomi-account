@@ -15,9 +15,10 @@ interface SimpleKeyValueManagerProps {
   keyFieldLabel: string;
   valueFieldLabel: string;
   valueFieldSchema: Field; 
+  description?: string;
 }
 
-const SimpleKeyValueManager: React.FC<SimpleKeyValueManagerProps> = ({ value = {}, onChange, t, label, keyFieldLabel, valueFieldLabel }) => {
+const SimpleKeyValueManager: React.FC<SimpleKeyValueManagerProps> = ({ value = {}, onChange, t, label, keyFieldLabel, valueFieldLabel, description }) => {
   const [list, setList] = useState<Array<{ key: string; value: string }>>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<{ key: string; value: string; originalKey: string } | null>(null);
@@ -81,7 +82,10 @@ const SimpleKeyValueManager: React.FC<SimpleKeyValueManagerProps> = ({ value = {
   return (
     <Card>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <Text strong>{label}</Text>
+        <div>
+          <Text strong>{label}</Text>
+          {description && <Text type="secondary" style={{ display: 'block' }}>{description}</Text>}
+        </div>
         <Button icon={<PlusOutlined />} onClick={() => handleShowModal()}>
           {t('add', 'Add')}
         </Button>

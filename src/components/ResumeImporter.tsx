@@ -19,6 +19,7 @@ interface ResumeImporterProps {
   form: FormInstance;
   user: User | null;
   apiKey: string | null;
+  onSave?: () => Promise<void>;
 }
 
 interface OcrApiResponse {
@@ -217,7 +218,7 @@ const buildAiPayload = (resumeText: string, selectedOptions: string[]) => {
   };
 };
 
-const ResumeImporter: React.FC<ResumeImporterProps> = ({ field, t, form, apiKey, user }) => {
+const ResumeImporter: React.FC<ResumeImporterProps> = ({ field, t, form, apiKey, user, onSave }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState('');
@@ -376,7 +377,6 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ field, t, form, apiKey,
                     return <li key={index}><strong>{parts[0]}:</strong>{parts.length > 1 ? parts.slice(1).join(':') : ''}</li>
                 })}
               </ul>
-               <Paragraph type="secondary">{t('resume_importer.final_note', 'Please review the changes in the form and click "Save" on the main page.')}</Paragraph>
             </div>
         );
         
@@ -397,6 +397,18 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ field, t, form, apiKey,
     } finally {
       setLoading(false);
       setLoadingStep('');
+    }
+  };
+
+  const handleFinalOk = async () => {
+    setIsModalVisible(false);
+    if (onSave) {
+      try {
+        await onSave();
+      } catch (error) {
+        console.log(error)
+        message.error(t('auto_save_failed', 'Auto-save failed, please save manually.'));
+      }
     }
   };
 
@@ -503,7 +515,7 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ field, t, form, apiKey,
           [
             <Button key="cancel" onClick={handleCancel} disabled={loading}>{t('Cancel', 'Cancel')}</Button>,
             currentStep === 1 && <Button key="submit" type="primary" onClick={handleRunAnalysis} loading={loading}>{t('Run Analysis', 'Run Analysis')}</Button>,
-            currentStep === 2 && <Button key="done" type="primary" onClick={handleCancel}>{t('Done', 'Done')}</Button>
+            currentStep === 2 && <Button key="done" type="primary" onClick={handleFinalOk}>{t('Done', 'Done')}</Button>
           ].filter(Boolean)
         }
       >

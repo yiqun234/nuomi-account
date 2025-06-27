@@ -16,17 +16,13 @@ const AuthLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <Layout className="auth-layout">
       <Header className="auth-header">
-        <Title level={3} style={{ margin: 0, fontWeight: 300 }}>
-          Nuomi Account Center
-        </Title>
+        <a href="https://www.nuomi.ai" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+            <Title level={2} style={{ color: '#1890ff', margin: 0, fontSize: '24px' }}>
+                Nuomi.ai
+            </Title>
+        </a>
         <Flex align="center" gap="large">
           <Space size="large">
-            <Link href="https.nuomi.ai" target="_blank" rel="noopener noreferrer">
-              <Space>
-                <HomeOutlined />
-                {t('homepage', 'Homepage')}
-              </Space>
-            </Link>
             <Link href={userManualUrl} target="_blank" rel="noopener noreferrer">
               <Space>
                 <QuestionCircleOutlined />

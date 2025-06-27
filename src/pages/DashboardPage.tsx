@@ -317,16 +317,12 @@ const DashboardPage: React.FC = () => {
           borderBottom: '1px solid #f0f0f0',
         }}
       >
-        <Title level={4} style={{ margin: 0 }}>
-          {t('title', 'Configuration Panel')}
-        </Title>
+        <a href="https://www.nuomi.ai" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+            <Title level={3} style={{ margin: 0, color: '#1890ff' }}>
+                Nuomi.ai
+            </Title>
+        </a>
         <Space>
-          <Link href="https://www.nuomi.ai" target="_blank" rel="noopener noreferrer">
-            <Space>
-              <HomeOutlined />
-              {t('homepage', 'Homepage')}
-            </Space>
-          </Link>
           <Link href={`https://www.nuomi.ai/instructions.html?lang=${i18n.language.startsWith('zh') ? 'zh' : 'en'}`} target="_blank" rel="noopener noreferrer">
             <Space>
               <QuestionCircleOutlined />

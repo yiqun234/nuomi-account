@@ -161,7 +161,7 @@
     "Save Failed. Please check for errors.": "Save Failed. Please check for errors.",
     "Changes have been reset.": "Changes have been reset.",
     "Logged out successfully": "Logged out successfully",
-    "Import": "Import",
+    "Import": "Import YAML",
     "Import successful!": "Import successful!",
     "Failed to import YAML. Check file format.": "Failed to import YAML. Check file format.",
     "Failed to read file.": "Failed to read file.",

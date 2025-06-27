@@ -161,7 +161,7 @@
     "reset_to_default": "重置为默认值",
     "Changes have been reset.": "更改已重置。",
     "Logged out successfully": "已成功登出。",
-    "Import": "导入",
+    "Import": "导入YAML",
     "Import successful!": "导入成功！",
     "Failed to import YAML. Check file format.": "导入YAML失败，请检查文件格式。",
     "Failed to read file.": "读取文件失败。",

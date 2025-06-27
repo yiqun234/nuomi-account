@@ -1,7 +1,7 @@
 import React from 'react'
 import { Layout, Typography, Space, Flex } from 'antd'
 import { useTranslation } from 'react-i18next'
-import { HomeOutlined, QuestionCircleOutlined } from '@ant-design/icons'
+import { QuestionCircleOutlined } from '@ant-design/icons'
 import LanguageSwitcher from './LanguageSwitcher'
 import './AuthLayout.css'
 

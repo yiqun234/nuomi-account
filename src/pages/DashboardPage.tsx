@@ -23,7 +23,6 @@ import {
   UploadOutlined,
   QuestionCircleOutlined,
   LogoutOutlined,
-  HomeOutlined,
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import yaml from 'js-yaml'

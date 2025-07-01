@@ -229,7 +229,7 @@ const renderField = (field: Field, t: TFunction, form: FormInstance, namePath: (
                     label={<LabelWithIndicator label={label} show={showIndicator} t={t} />}
                     name={namePath}
                     getValueFromEvent={(e: React.ChangeEvent<HTMLTextAreaElement>) => 
-                        e.target.value.split('\n')
+                        e.target.value === '' ? [] : e.target.value.split('\n')
                     }
                     getValueProps={(value: string[]) => ({ 
                         value: Array.isArray(value) ? value.join('\n') : '' 

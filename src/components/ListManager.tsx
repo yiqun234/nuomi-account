@@ -3,12 +3,13 @@ import { Button, Modal, Form, Input, InputNumber, Select, Space, List, Checkbox,
 import type { CheckboxChangeEvent } from 'antd/es/checkbox';
 import { PlusOutlined } from '@ant-design/icons';
 import type { Field } from '../types';
+import { useWatch } from 'antd/es/form/Form';
 
 const { TextArea } = Input;
 type ListItem = Record<string, string | number | boolean | undefined>;
 
 // Helper to render form items based on schema
-const renderFormItems = (fields: Field[], t: (key: string, defaultVal?: string) => string, parentFieldKey?: string) => {
+const renderFormItems = (fields: Field[], t: (key: string, defaultVal?: string) => string, parentFieldKey?: string, form?: any) => {
     const currentYear = new Date().getFullYear();
     const fromYears = Array.from({ length: 101 }, (_, i) => (currentYear - i).toString());
     const toYears = Array.from({ length: 111 }, (_, i) => (currentYear + 10 - i).toString());
@@ -18,18 +19,61 @@ const renderFormItems = (fields: Field[], t: (key: string, defaultVal?: string) 
         educations: ['school', 'city', 'degree', 'major', ['from_year', 'from_month', ], ['to_year', 'to_month'], 'current'],
     };
 
+    // Watch for current field changes to disable/enable end date fields
+    const currentValue = form ? useWatch('current', form) : false;
+
+    // Effect to clear end date fields when current is checked
+    React.useEffect(() => {
+        if (currentValue && form && (parentFieldKey === 'workExperiences' || parentFieldKey === 'educations')) {
+            form.setFieldsValue({
+                to_month: undefined,
+                to_year: undefined
+            });
+        }
+    }, [currentValue, form, parentFieldKey]);
+
     const renderSingleField = (field: Field) => {
         const translationKey = parentFieldKey ? `${parentFieldKey}_${field.key}` : field.key;
         const label = t(translationKey, field.en_label);
 
+        // Disable end date fields when current is true
+        const isEndDateField = field.key === 'to_month' || field.key === 'to_year';
+        const shouldDisable = isEndDateField && currentValue && (parentFieldKey === 'workExperiences' || parentFieldKey === 'educations');
+
         if ((parentFieldKey === 'workExperiences' || parentFieldKey === 'educations') && (field.key === 'from_year' || field.key === 'to_year')) {
             const yearOptions = field.key === 'from_year' ? fromYears : toYears;
-            return <Form.Item key={field.key} label={label} name={field.key} rules={[{ required: true }]}><Select showSearch>{yearOptions.map(year => <Select.Option key={year} value={year}>{year}</Select.Option>)}</Select></Form.Item>;
+            return (
+                <Form.Item 
+                    key={field.key} 
+                    label={label} 
+                    name={field.key} 
+                    rules={shouldDisable ? [] : [{ required: true }]}
+                >
+                    <Select showSearch disabled={shouldDisable}>
+                        {yearOptions.map(year => <Select.Option key={year} value={year}>{year}</Select.Option>)}
+                    </Select>
+                </Form.Item>
+            );
         }
 
         switch (field.ui_hint) {
             case 'number_input': return <Form.Item key={field.key} label={label} name={field.key} rules={[{ required: true }]}><InputNumber style={{ width: '100%' }} /></Form.Item>;
-            case 'select': return <Form.Item key={field.key} label={label} name={field.key} rules={[{ required: true }]}><Select>{field.options?.map(opt => (<Select.Option key={opt.key} value={opt.key}>{String(t(opt.key, opt.en_label))}</Select.Option>))}</Select></Form.Item>;
+            case 'select': 
+                if (field.key === 'to_month') {
+                    return (
+                        <Form.Item 
+                            key={field.key} 
+                            label={label} 
+                            name={field.key} 
+                            rules={shouldDisable ? [] : [{ required: true }]}
+                        >
+                            <Select disabled={shouldDisable}>
+                                {field.options?.map(opt => (<Select.Option key={opt.key} value={opt.key}>{String(t(opt.key, opt.en_label))}</Select.Option>))}
+                            </Select>
+                        </Form.Item>
+                    );
+                }
+                return <Form.Item key={field.key} label={label} name={field.key} rules={[{ required: true }]}><Select>{field.options?.map(opt => (<Select.Option key={opt.key} value={opt.key}>{String(t(opt.key, opt.en_label))}</Select.Option>))}</Select></Form.Item>;
             case 'textarea': return <Form.Item key={field.key} label={label} name={field.key} rules={[{ required: true }]}><TextArea rows={4} /></Form.Item>;
             case 'checkbox': return <Form.Item key={field.key} name={field.key} valuePropName="checked"><Checkbox>{label}</Checkbox></Form.Item>;
             case 'text_input': default: return <Form.Item key={field.key} label={label} name={field.key} rules={[{ required: true }]}><Input /></Form.Item>;
@@ -314,7 +358,7 @@ const ListManager: React.FC<ListManagerProps> = ({ fieldKey, label, value = [], 
                 onCancel={handleCancel}
             >
                 <Form form={form} layout="vertical" name="item_form">
-                    {renderFormItems(itemSchema.properties, t, fieldKey)}
+                    {renderFormItems(itemSchema.properties, t, fieldKey, form)}
                 </Form>
             </Modal>
             
@@ -331,7 +375,7 @@ const ListManager: React.FC<ListManagerProps> = ({ fieldKey, label, value = [], 
                                 <TextArea rows={10} placeholder={t('batch_add_placeholder', 'e.g.\nJava\nPython\nGo')} />
                             </Form.Item>
                             <Divider>{t('batch_add_shared_value_note', 'Set a shared value for all new items')}</Divider>
-                            {renderFormItems([sharedValueField], t, fieldKey)}
+                            {renderFormItems([sharedValueField], t, fieldKey, batchAddForm)}
                         </Form>
                     </Modal>
 
@@ -344,7 +388,7 @@ const ListManager: React.FC<ListManagerProps> = ({ fieldKey, label, value = [], 
                         <Form form={batchEditForm} layout="vertical">
                             <p>{t('batch_edit_note', String({ count: selectedItems.length }))}</p>
                              <Divider />
-                            {renderFormItems([sharedValueField], t, fieldKey)}
+                            {renderFormItems([sharedValueField], t, fieldKey, batchEditForm)}
                         </Form>
                     </Modal>
                 </>

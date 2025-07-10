@@ -83,7 +83,7 @@ const SimpleKeyValueManager: React.FC<SimpleKeyValueManagerProps> = ({ value = {
     <Card>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <div>
-          <Text strong>{label}</Text>
+        <Text strong>{label}</Text>
           {description && <Text type="secondary" style={{ display: 'block' }}>{description}</Text>}
         </div>
         <Button icon={<PlusOutlined />} onClick={() => handleShowModal()}>

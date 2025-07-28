@@ -8,7 +8,7 @@ export function handleInitialURLParameters(): void {
     sessionStorage.setItem('authCallback', callback)
   }
 
-  const logoutCallback = params.get('callback')
+  const logoutCallback = params.get('logoutCallback')
   if (logoutCallback) {
     // Handle logout callback URL parameter
     sessionStorage.setItem('logoutCallback', logoutCallback)

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Modal, Form, Input, InputNumber, Select, Space, List, Checkbox, Divider, Popconfirm, message, Row, Col, Typography, Pagination } from 'antd';
 import type { CheckboxChangeEvent } from 'antd/es/checkbox';
+import type { FormInstance } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import type { Field } from '../types';
 import { useWatch } from 'antd/es/form/Form';
@@ -8,105 +9,168 @@ import { useWatch } from 'antd/es/form/Form';
 const { TextArea } = Input;
 type ListItem = Record<string, string | number | boolean | undefined>;
 
-// Helper to render form items based on schema
-const renderFormItems = (fields: Field[], t: (key: string, defaultVal?: string) => string, parentFieldKey?: string, form?: any) => {
-    const currentYear = new Date().getFullYear();
-    const fromYears = Array.from({ length: 101 }, (_, i) => (currentYear - i).toString());
-    const toYears = Array.from({ length: 111 }, (_, i) => (currentYear + 10 - i).toString());
+// Helper component to render form items with proper Hook usage
+const FormItemRenderer: React.FC<{
+  fields: Field[];
+  t: (key: string, defaultVal?: string) => string;
+  parentFieldKey?: string;
+  form: FormInstance;
+}> = ({ fields, t, parentFieldKey, form }) => {
+  // Watch for current field changes to disable/enable end date fields
+  const currentValue = useWatch('current', form);
 
-    const fieldLayoutSchema: { [key: string]: (string | string[])[] } = {
-        workExperiences: ['title', 'company', ['from_year', 'from_month'], [ 'to_year', 'to_month'], 'current', 'description'],
-        educations: ['school', 'city', 'degree', 'major', ['from_year', 'from_month', ], ['to_year', 'to_month'], 'current'],
-    };
+  // Effect to clear end date fields when current is checked
+  React.useEffect(() => {
+    if (currentValue && (parentFieldKey === 'workExperiences' || parentFieldKey === 'educations')) {
+      form.setFieldsValue({
+        to_month: undefined,
+        to_year: undefined
+      });
+    }
+  }, [currentValue, form, parentFieldKey]);
 
-    // Watch for current field changes to disable/enable end date fields
-    const currentValue = form ? useWatch('current', form) : false;
+  const currentYear = new Date().getFullYear();
+  const fromYears = Array.from({ length: 101 }, (_, i) => (currentYear - i).toString());
+  const toYears = Array.from({ length: 111 }, (_, i) => (currentYear + 10 - i).toString());
 
-    // Effect to clear end date fields when current is checked
-    React.useEffect(() => {
-        if (currentValue && form && (parentFieldKey === 'workExperiences' || parentFieldKey === 'educations')) {
-            form.setFieldsValue({
-                to_month: undefined,
-                to_year: undefined
-            });
-        }
-    }, [currentValue, form, parentFieldKey]);
+  const fieldLayoutSchema: { [key: string]: (string | string[])[] } = {
+    workExperiences: ['title', 'company', ['from_year', 'from_month'], ['to_year', 'to_month'], 'current', 'description'],
+    educations: ['school', 'city', 'degree', 'major', ['from_year', 'from_month'], ['to_year', 'to_month'], 'current'],
+  };
 
-    const renderSingleField = (field: Field) => {
-        const translationKey = parentFieldKey ? `${parentFieldKey}_${field.key}` : field.key;
-        const label = t(translationKey, field.en_label);
+  const renderSingleField = (field: Field) => {
+    const translationKey = parentFieldKey ? `${parentFieldKey}_${field.key}` : field.key;
+    const label = t(translationKey, field.en_label);
 
-        // Disable end date fields when current is true
-        const isEndDateField = field.key === 'to_month' || field.key === 'to_year';
-        const shouldDisable = isEndDateField && currentValue && (parentFieldKey === 'workExperiences' || parentFieldKey === 'educations');
+    // Disable end date fields when current is true
+    const isEndDateField = field.key === 'to_month' || field.key === 'to_year';
+    const shouldDisable = isEndDateField && currentValue && (parentFieldKey === 'workExperiences' || parentFieldKey === 'educations');
 
-        if ((parentFieldKey === 'workExperiences' || parentFieldKey === 'educations') && (field.key === 'from_year' || field.key === 'to_year')) {
-            const yearOptions = field.key === 'from_year' ? fromYears : toYears;
-            return (
-                <Form.Item 
-                    key={field.key} 
-                    label={label} 
-                    name={field.key} 
-                    rules={shouldDisable ? [] : [{ required: true }]}
-                >
-                    <Select showSearch disabled={shouldDisable}>
-                        {yearOptions.map(year => <Select.Option key={year} value={year}>{year}</Select.Option>)}
-                    </Select>
-                </Form.Item>
-            );
-        }
-
-        switch (field.ui_hint) {
-            case 'number_input': return <Form.Item key={field.key} label={label} name={field.key} rules={[{ required: true }]}><InputNumber style={{ width: '100%' }} /></Form.Item>;
-            case 'select': 
-                if (field.key === 'to_month') {
-                    return (
-                        <Form.Item 
-                            key={field.key} 
-                            label={label} 
-                            name={field.key} 
-                            rules={shouldDisable ? [] : [{ required: true }]}
-                        >
-                            <Select disabled={shouldDisable}>
-                                {field.options?.map(opt => (<Select.Option key={opt.key} value={opt.key}>{String(t(opt.key, opt.en_label))}</Select.Option>))}
-                            </Select>
-                        </Form.Item>
-                    );
-                }
-                return <Form.Item key={field.key} label={label} name={field.key} rules={[{ required: true }]}><Select>{field.options?.map(opt => (<Select.Option key={opt.key} value={opt.key}>{String(t(opt.key, opt.en_label))}</Select.Option>))}</Select></Form.Item>;
-            case 'textarea': return <Form.Item key={field.key} label={label} name={field.key} rules={[{ required: true }]}><TextArea rows={4} /></Form.Item>;
-            case 'checkbox': return <Form.Item key={field.key} name={field.key} valuePropName="checked"><Checkbox>{label}</Checkbox></Form.Item>;
-            case 'text_input': default: return <Form.Item key={field.key} label={label} name={field.key} rules={[{ required: true }]}><Input /></Form.Item>;
-        }
-    };
-
-    const layoutOrder = parentFieldKey ? fieldLayoutSchema[parentFieldKey] : undefined;
-    
-    // Only apply the complex layout if we are rendering the full form (i.e., more than 1 field),
-    // not a partial form like in batch-edit modals.
-    if (layoutOrder && fields.length > 1) {
-        const fieldMap = new Map(fields.map(f => [f.key, f]));
-        return layoutOrder.map(keyOrPair => {
-            if (Array.isArray(keyOrPair)) {
-                const [key1, key2] = keyOrPair;
-                const field1 = fieldMap.get(key1);
-                const field2 = fieldMap.get(key2);
-                if (!field1 || !field2) {
-                    console.warn(`Layout schema mismatch for keys: ${key1}, ${key2}`);
-                    return null;
-                }
-                return (<Row gutter={16} key={`${key1}-${key2}`}><Col span={12}>{renderSingleField(field1)}</Col><Col span={12}>{renderSingleField(field2)}</Col></Row>);
-            }
-            const field = fieldMap.get(keyOrPair as string);
-            if (!field) {
-                console.warn(`Layout schema mismatch for key: ${keyOrPair}`);
-                return null;
-            }
-            return renderSingleField(field);
-        });
+    if ((parentFieldKey === 'workExperiences' || parentFieldKey === 'educations') && (field.key === 'from_year' || field.key === 'to_year')) {
+      const yearOptions = field.key === 'from_year' ? fromYears : toYears;
+      return (
+        <Form.Item 
+          key={field.key} 
+          label={label} 
+          name={field.key} 
+          rules={shouldDisable ? [] : [{ required: true }]}
+        >
+          <Select 
+            placeholder={`Select ${label}`} 
+            showSearch
+            disabled={shouldDisable}
+          >
+            {yearOptions.map(year => (
+              <Select.Option key={year} value={year}>{year}</Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+      );
     }
 
-    return fields.map(field => renderSingleField(field));
+    if ((parentFieldKey === 'workExperiences' || parentFieldKey === 'educations') && (field.key === 'from_month' || field.key === 'to_month')) {
+      const shouldDisable = field.key === 'to_month' && currentValue && (parentFieldKey === 'workExperiences' || parentFieldKey === 'educations');
+      return (
+        <Form.Item 
+          key={field.key} 
+          label={label} 
+          name={field.key} 
+          rules={shouldDisable ? [] : [{ required: true }]}
+        >
+          <Select 
+            placeholder={`Select ${label}`} 
+            showSearch
+            disabled={shouldDisable}
+          >
+            {field.options!.map(option => (
+              <Select.Option key={option.key} value={option.key}>
+                {t(`${field.key}_${option.key}`, option.en_label)}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+      );
+    }
+
+    switch (field.ui_hint) {
+      case 'text_input':
+        return (
+          <Form.Item key={field.key} label={label} name={field.key} rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+        );
+      case 'number_input':
+        return (
+          <Form.Item key={field.key} label={label} name={field.key} rules={[{ required: true }]}>
+            <InputNumber style={{ width: '100%' }} />
+          </Form.Item>
+        );
+      case 'textarea':
+        return (
+          <Form.Item key={field.key} label={label} name={field.key} rules={[{ required: true }]}>
+            <TextArea rows={4} />
+          </Form.Item>
+        );
+      case 'select':
+        return (
+          <Form.Item key={field.key} label={label} name={field.key} rules={[{ required: true }]}>
+            <Select placeholder={`Select ${label}`} showSearch>
+              {field.options!.map(option => (
+                <Select.Option key={option.key} value={option.key}>
+                  {t(`${field.key}_${option.key}`, option.en_label)}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+        );
+      case 'checkbox':
+        return (
+          <Form.Item key={field.key} name={field.key} valuePropName="checked">
+            <Checkbox>{label}</Checkbox>
+          </Form.Item>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const layout = fieldLayoutSchema[parentFieldKey || ''] || fields.map(f => f.key);
+  
+  return (
+    <>
+      {layout.map((item, index) => {
+        if (Array.isArray(item)) {
+          return (
+            <Row key={index} gutter={16}>
+              {item.map(fieldKey => {
+                const field = fields.find(f => f.key === fieldKey);
+                return field ? (
+                  <Col key={fieldKey} span={12}>
+                    {renderSingleField(field)}
+                  </Col>
+                ) : null;
+              })}
+            </Row>
+          );
+        } else {
+          const field = fields.find(f => f.key === item);
+          return field ? renderSingleField(field) : null;
+        }
+      })}
+    </>
+  );
+};
+
+// Helper to render form items based on schema (now just returns the component)
+const renderFormItems = (fields: Field[], t: (key: string, defaultVal?: string) => string, form: FormInstance, parentFieldKey?: string) => {
+  return (
+    <FormItemRenderer 
+      fields={fields} 
+      t={t} 
+      parentFieldKey={parentFieldKey} 
+      form={form} 
+    />
+  );
 };
 
 
@@ -358,7 +422,7 @@ const ListManager: React.FC<ListManagerProps> = ({ fieldKey, label, value = [], 
                 onCancel={handleCancel}
             >
                 <Form form={form} layout="vertical" name="item_form">
-                    {renderFormItems(itemSchema.properties, t, fieldKey, form)}
+                    {renderFormItems(itemSchema.properties, t, form, fieldKey)}
                 </Form>
             </Modal>
             
@@ -375,7 +439,7 @@ const ListManager: React.FC<ListManagerProps> = ({ fieldKey, label, value = [], 
                                 <TextArea rows={10} placeholder={t('batch_add_placeholder', 'e.g.\nJava\nPython\nGo')} />
                             </Form.Item>
                             <Divider>{t('batch_add_shared_value_note', 'Set a shared value for all new items')}</Divider>
-                            {renderFormItems([sharedValueField], t, fieldKey, batchAddForm)}
+                            {renderFormItems([sharedValueField], t, batchAddForm, fieldKey)}
                         </Form>
                     </Modal>
 
@@ -388,7 +452,7 @@ const ListManager: React.FC<ListManagerProps> = ({ fieldKey, label, value = [], 
                         <Form form={batchEditForm} layout="vertical">
                             <p>{t('batch_edit_note', String({ count: selectedItems.length }))}</p>
                              <Divider />
-                            {renderFormItems([sharedValueField], t, fieldKey, batchEditForm)}
+                            {renderFormItems([sharedValueField], t, batchEditForm, fieldKey)}
                         </Form>
                     </Modal>
                 </>

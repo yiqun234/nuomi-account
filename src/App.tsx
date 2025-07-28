@@ -13,6 +13,7 @@ const LoginPage = lazy(() => import('./pages/LoginPage'))
 const RegisterPage = lazy(() => import('./pages/RegisterPage'))
 const DashboardPage = lazy(() => import('./pages/DashboardPage'))
 const AuthorizePage = lazy(() => import('./pages/AuthorizePage'))
+const LogoutPage = lazy(() => import('./pages/LogoutPage'))
 
 const App = () => {
   const { i18n } = useTranslation()
@@ -94,6 +95,7 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
+            <Route path="/logout" element={<LogoutPage />} />
           </Routes>
         </Suspense>
       </AntdApp>

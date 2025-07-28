@@ -8,6 +8,12 @@ export function handleInitialURLParameters(): void {
     sessionStorage.setItem('authCallback', callback)
   }
 
+  const logoutCallback = params.get('callback')
+  if (logoutCallback) {
+    // Handle logout callback URL parameter
+    sessionStorage.setItem('logoutCallback', logoutCallback)
+  }
+
   // The 'lang' parameter will be handled automatically by i18next-browser-languagedetector,
   // so we don't need to handle it manually here.
 } 

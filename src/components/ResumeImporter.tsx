@@ -219,6 +219,11 @@ const buildAiPayload = (resumeText: string, selectedOptions: string[]) => {
   const metadata: Record<string, unknown> = {};
 
   selectedOptions.forEach(option => {
+    // 排除可能冲突的字段
+    if (option === 'language' || option === 'textResume') {
+      return;
+    }
+    
     if (option in fullStructure) {
         structure[option] = fullStructure[option as keyof typeof fullStructure];
     }
@@ -440,7 +445,9 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ field, t, form, apiKey,
       }
       
       if (Object.keys(valuesToSet).length > 0) {
-        form.setFieldsValue(valuesToSet);
+        // 过滤掉可能冲突的字段
+        const { language, textResume, ...filteredValues } = valuesToSet as any;
+        form.setFieldsValue(filteredValues);
       }
 
       if (updatedCategories > 0) {

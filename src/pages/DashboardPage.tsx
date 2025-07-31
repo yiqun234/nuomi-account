@@ -170,6 +170,7 @@ const DashboardPage: React.FC = () => {
       // Exclude client-side only fields before saving
       delete valuesToSave.uploads;
       delete valuesToSave.textResume;
+      delete valuesToSave.language;
 
       // Convert date string back to object before saving
       if (valuesToSave.date && typeof valuesToSave.date === 'string') {
@@ -242,6 +243,9 @@ const DashboardPage: React.FC = () => {
             }
             if ('textResume' in newConfig) {
                 delete newConfig.textResume;
+            }
+            if ('language' in newConfig) {
+                delete newConfig.language;
             }
             
             form.setFieldsValue(newConfig);
